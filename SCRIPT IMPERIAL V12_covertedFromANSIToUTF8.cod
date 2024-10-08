@@ -1666,7 +1666,6 @@ if item.seam[1].value= "petit lock" then
   item.seam[1].locked=true
   item.seam[2].locked=true
 end if
-item.update()
 
 
 REM 42--------------Assign LAP-19-F to 34 clinch---------------------REM
@@ -1679,7 +1678,6 @@ if item.seam[1].value= "LAP-19-F" then
   item.seam[1].locked=true
   item.seam[2].locked=true
 end if
-item.update()
 
 REM-------Fin--------REM
 REM-------Fin--------REM
