@@ -1507,7 +1507,7 @@ REM-20----------------Toutes les longueurs Spirales à BE----------REM
       item.connector[2].locked=false
      end if
 
-"REM-21----------------Carrés à Rond à Spec="Spiral 10"WG"---------REM
+rem-21----------------Carrés à Rond à Spec="Spiral 10""WG"---------REM
      if item.CID <> 382 or item.CID <> 8 or item.CID <> 29 then
 rem Rev 4c
         item.gaugelock=false
@@ -1811,17 +1811,14 @@ item.update()
 
 REM 38---------------Change TDC-Taper connector 2 to TDF---------------------REM
 
-
-
-
 If ITEM.Connector[1].VALUE = "tdc-taper" then
      ITEM.Connector[1].locked=False
       ITEM.Connector[1].value="TDF"
       ITEM.Connector[1].locked=True
 End if
 
-
 REM 39---------------Change imported accoustic 1"" to our accoustic in metric---------------------REM
+
 if ITEM.insspec= "Ac 1''" then
 item.insulation.locked=false
 item.insulation.status= "Inside"
@@ -1831,7 +1828,6 @@ item.insulation.gauge= "APS: 25.00"
 item.insulation.locked=true
 end if
 item.update()
-
 
 REM 40--------------Assign Fab table and price list to Coudes Rond CID 97, 61---------------------REM
 
@@ -1886,7 +1882,17 @@ if item.cid= 97 and item.dim[3].value= 22.5 then
 end if
 item.update()
 
+REM 41--------------Assign petit lock seam to L Pitts---------------------REM
 
+for s = 1 to 5
+  if item.seam[s] then
+    if item.seam[s].value= "petit lock" then
+      item.seam[s].locked=false
+      item.seam[s].value= "L-Pitts"
+      item.seam[s].locked=true
+    endif
+  endif
+next s
 
 
 

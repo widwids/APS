@@ -740,7 +740,7 @@ If item.CID=330 then
 end if
  
 
-"REM-15-----------------Carrés à Rond TJ-TDF, 1/4"LAP TACK/SCELLER-SE (ou BE) **Voir section des CONNECTEURS au haut du fichier. ---1/2 Clinch
+REM-15-----------------Carrés à Rond TJ-TDF, 1/4"LAP TACK/SCELLER-SE (ou BE) **Voir section des CONNECTEURS au haut du fichier. ---1/2 Clinch
 
 if item.CID = 8 or item.CID = 29 then
 dim j
@@ -850,7 +850,7 @@ REM-18-----------Change Service type selon "Library"---------------------REM
 
  
 
-"REM-19------------Conduits Spiral à Spec = "SPIRAL 10"WG"----------------REM
+REM-19------------Conduits Spiral à Spec = "SPIRAL 10"WG"----------------REM
 REM-19--Les entrées du spec de base dans le matériel "galvanized" doivent être recopiées dans le matérial du client pour que cà fonctionne.
 
 if item.CID=61 then
@@ -1505,7 +1505,7 @@ REM-20----------------Toutes les longueurs Spirales à BE----------REM
       item.connector[2].locked=false
      end if
 
-"REM-21----------------Carrés à Rond à Spec="Spiral 10"WG"---------REM
+REM-21----------------Carrés à Rond à Spec="Spiral 10""WG"---------REM
      if item.CID <> 382 or item.CID <> 8 or item.CID <> 29 then
 rem Rev 4c
         item.gaugelock=false
@@ -1648,6 +1648,7 @@ if item.cid=522 then
 end if
 
 REM 40--------------Assign Fab table and price list to Coudes Rond CID 97, 61---------------------REM
+
 Select ITEM.CID
   case 61
 if item.cid= 61 then
@@ -1658,15 +1659,15 @@ item.update()
 
 REM 41--------------Assign petit lock seam to L Pitts---------------------REM
 
-if item.seam[1].value= "petit lock" then
-  item.seam[1].locked=false
-  item.seam[2].locked=false
-  item.seam[1].value= "L-Pitts"
-  item.seam[2].value= "L-Pitts"
-  item.seam[1].locked=true
-  item.seam[2].locked=true
-end if
-
+for s = 1 to 5
+  if item.seam[s] then
+    if item.seam[s].value= "petit lock" then
+      item.seam[s].locked=false
+      item.seam[s].value= "L-Pitts"
+      item.seam[s].locked=true
+    endif
+  endif
+next s
 
 REM 42--------------Assign LAP-19-F to 34 clinch---------------------REM
 
