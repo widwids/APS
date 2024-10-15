@@ -116,22 +116,23 @@ if instr(1,DBPath,"Metric") then
   scale = 1
 end if
 
+REM 1--------------- Set gauge if not already defined---------------------
+
 if not item.gauge then
+  if item.material = "erreur" or item.material = "error" or item.material = "" then
+    item.specification = "2WG 48"
+    item.material = "Galvanized"
 
-    if item.material = "erreur" or item.material = "error"  or item.material = "" then
-        item.specification = "2WG 48"
-        item.material = "Galvanized"
-
-        if scale = 1 then
-         item.gaugelock=false
-         item.gauge = 0.0276
-         item.gaugelock=true
-        else
-         item.gaugelock=false
-         item.gauge = 0.711
-         item.gaugelock=true
-        end if
+    item.gaugelock = false
+    
+    if scale = 1 then
+        item.gauge = 0.0276
+    else
+        item.gauge = 0.711
     end if
+
+    item.gaugelock = true        
+  end if
 end if
 
 REM-2---------------AJOUT DE NOTE POUR VOLET MANUEL AVEC ISOLATION THERMIQUE----------------------
