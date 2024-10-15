@@ -1,4 +1,4 @@
-rem Checkstuff_APS_r8.cod
+rem TEST SCRIPTING METRIC.cod
 rem
 rem 18/04/6
 rem Julien Dufresne et Yvon Dufresne - Novybec
@@ -39,6 +39,7 @@ REM r5 -  20-06-02 - Ajustement des Options "Seam Position"=0, "Single Segment"=
 REM r6 -  21-03-02 - Ajustement des Options "Length adjust for Part 4 (et Part 3) pour les coudes à rayon (-0.0625)
 REM r7 -  21-05-07 - Insulation dimension à "outside"
 REM r8 -  21-09-15 - Ajout de longueurs de 5 pieds sur la Vicon
+
 
 
 REM-1---------Job en métrique ou impériale, ajuste la variable "Scale" selon le cas.---------------------------------------------------REM
@@ -128,7 +129,7 @@ if not item.gauge then
          item.gaugelock=true
         else
          item.gaugelock=false
-         item.gauge = 0.711
+         item.gauge = 0.0711
          item.gaugelock=true
         end if
     end if
@@ -159,7 +160,7 @@ end if
 ENDIF
 item.update()
 
-REM-22--------------------INSIDE DIMS INSULATION à "OUTSIDE"-----------------------------REM
+REM-22--------------------INSIDE DIMS INSULATION   "OUTSIDE"-----------------------------REM
 
 rem debug item.dimside
 item.dimside = "outside"
@@ -235,7 +236,7 @@ for j = 1 to 3
 
   select item.connector[j].value
 
-   case "SB", "S-B", "S-BS", "SBS"
+   case "SB", "S-B", "S-BS", "SBS", "S&B"
 
     item.connector[j].locked=false
           item.connector[j].value = "SB"
@@ -398,7 +399,7 @@ REM debug max48
 REM    if item.dim[3].numvalue < max48 then
      Dim Newgauge = 0
      select item.gauge
-      Case 0.0217
+      Case 0.0216
      item.gaugelock=false
      item.gauge = 0.0218
      item.gaugelock=true
@@ -499,6 +500,7 @@ item.update()
 
 
 REM-8--------Longueurs Machine Cut, (866) Option 15 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F"----------------REM
+
 
 if item.cid = 866 then
 
@@ -1505,7 +1507,7 @@ REM-20----------------Toutes les longueurs Spirales à BE----------REM
       item.connector[2].locked=false
      end if
 
-REM-21----------------Carrés à Rond à Spec="Spiral 10"WG"---------REM
+"REM-21----------------Carrés à Rond à Spec="Spiral 10"WG"---------REM
      if item.CID <> 382 or item.CID <> 8 or item.CID <> 29 then
 rem Rev 4c
         item.gaugelock=false
@@ -1522,57 +1524,11 @@ rem Rev 4c
      end if
  end if
 
-REM============================================================
-REM * DESCRIPTION: Script to change the number of parts on a straight based on periphery
-REM *
-REM *----------------------------------------------------------------------------------------------------------------------
-REM *  CREATED BY: Garrett Tice-David Ronson
-REM *           DIRECT:
-REM *             CELL:
-REM *            EMAIL: support@asti.com
-REM *             DATE: 10/25/17
-REM * ----------------------------------------------------------------------------------------------------------------------
-REM *   REVISED BY: jimbon
-REM *             DATE: 10-31-2017
-REM ============================================================
-
-Select item.cid
-case 866
-
-Dim varWidth = item.dim[1].value
-Dim varDepth = item.dim[2].value
-Dim varPeriphery = (varWidth*2) + (varDepth*2)
-
-If varPeriphery < "122.1" then
-    item.option["Override"].value = "1 Part Straight"
-end if
-
-if varPeriphery > "122.1" and varPeriphery < "244.1" then
-    if varWidth > "111.75" or varDepth > "111.75" then
-      item.option["Override"].value = "4xI,M-F"
-    else item.option["Override"].value = "2xL"
-endif
-end if
-
-if varPeriphery > "244.1" then
-ITEM.OPTION["Override"].value = "4xI,M-F"
-end if
-
-if varWidth < "4" or varDepth < "4" then
-     ITEM.OPTION["Override"].value = "2xL"
-end if
-
-end select
-item.update()
-
-REM-22----------------Carre a rond price---------REM
+REM-22----------------ASSIGN PRICE LIST Car-Rond Asym----------REM
 if item.description = "Car-Rond Asym" then
        item.pricelist = "APS Liste de prix brute: Transitions carré a rond"
                 End If
 if item.cid = 8 then
-       item.pricelist = "APS Liste de prix brute: Transitions carré a rond"
-                End If
-if item.description = "Square To Round" then
        item.pricelist = "APS Liste de prix brute: Transitions carré a rond"
                 End If
 
@@ -1592,14 +1548,6 @@ if item.description = "Conn Flex 3po" and
 if item.description = "Conn Flex 6po" then
        item.pricelist = "APS Liste de prix brute: Joint Flexible 3-6-3"
                 End If
-if item.description= "Duct Canvas 3-6-3" then
-  item.pricelist = "APS Liste de prix brute: Joint Flexible 3-6-3"
-end if
-
-If item.cid=555 then
-  item.pricelist = "APS Liste de prix brute: Joint Flexible 3-3-3-rond"
-  item.fabtable = "Canvas-rond"
-end if
 
 REM-24----------------Carre a rond connectors adjustments---------REM
 Select ITEM.CID
@@ -1607,12 +1555,31 @@ Select ITEM.CID
   case 8
 
   if item.Option["Diameter Type"].Value = "Outside" Then
-    ITEM.Connector[2].Value = "1/4""LAP TACK/SCELLER"
+    ITEM.Connector[2].Value = "1/4""LAP Tacké-Scellé SE"
     ITEM.Connector[2].Locked = True
   endif
 
-EndSelect
+End Select
 
+Select ITEM.CID
+
+  case 8
+
+  if item.Option["Diameter Type"].Value = "Nominal" Then
+    ITEM.Connector[2].Value = "1/4""LAP Tacké-Scellé SE"
+    ITEM.Connector[2].Locked = True
+  endif
+
+End Select
+
+Select item.cid
+case 8
+    If ITEM.Connector[2].Value = "SE 3"" {9015-Globale}" then
+    ITEM.Connector[2].Locked = False
+    ITEM.Connector[2].Value = "1/4""LAP TACK/SCELLER"
+    ITEM.Connector[2].Locked = True
+  endif
+End Select
 
 REM-25----------------CID 866 set notch 1 and 2 to use vee notch---------REM
 if item.cid= 866 then
@@ -1623,20 +1590,23 @@ if item.cid= 866 then
 end if
 
 REM-26----------------CID 6 BRANCHE 45DEG---------REM
-if item.cid=875 and item.dim[4].value = "45" then
+if item.cid=16 then
   item.pricelist = "APS Liste de prix brute: Branche 45deg"
 end if
 
-
 REM-27----------------CID 921 CLE MAJ---------REM
-if item.cid=921 then
+Select item.cid
+case 921
+if item.cid=921 and item.option["Type"].value="Round" then
   item.pricelist="APS Liste de prix brute: Volet rond"
   item.servicetype="Duct Accessory"
   item.cuttype="Machine Cut"
   item.boughtout = false
   item.fabtable = "Round Dampers"
- 
 end if
+end select
+item.update()
+
 
 REM-28----------------CID 522 Coupling SE spirale---------REM
 if item.cid=522 then
@@ -1647,37 +1617,280 @@ if item.cid=522 then
   item.fabtable = "Round Coupling Std."
 end if
 
-REM 40--------------Assign Fab table and price list to Coudes Rond CID 97, 61---------------------REM
-Select ITEM.CID
-  case 61
-if item.cid= 61 then
-  item.pricelist="APS Liste de prix brute: Coudes standard"
+REM-29----------------CID 921 and 514 VMAN rect---------REM
+
+Select item.cid
+case 514
+if item.cid=514 and item.dim[1].value < 305 and item.dim[2].value < 305 then
+  item.pricelist="APS Liste de prix brute: Volet manuel sans cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "VCD"
 end if
-End select
+end select
 item.update()
 
-REM 41--------------Assign petit lock seam to L Pitts---------------------REM
+Select item.cid
+case 921
+if item.cid= 921 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value < 305 and item.dim[2].value < 305 then
+  item.pricelist="APS Liste de prix brute: Volet manuel sans cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "VCD"
+end if
+end select
+item.update()
 
-if item.seam[1].value= "petit lock" then
-  item.seam[1].locked=false
-  item.seam[2].locked=false
-  item.seam[1].value= "L-Pitts"
-  item.seam[2].value= "L-Pitts"
-  item.seam[1].locked=true
-  item.seam[2].locked=true
+Select item.cid
+case 514
+if item.cid=514 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value < 762 and item.dim[2].value < 305 then
+  item.pricelist="APS Liste de prix brute: Volet manuel sans cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "VCD"
+end if
+end select
+item.update()
+
+Select item.cid
+case 921
+if item.cid= 921 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value < 762 and item.dim[2].value < 305 then
+  item.pricelist="APS Liste de prix brute: Volet manuel sans cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "VCD"
+end if
+end select
+item.update()
+
+Select item.cid
+case 514
+if item.cid=514 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value < 305 and item.dim[2].value < 762 then
+  item.pricelist="APS Liste de prix brute: Volet manuel sans cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "VCD"
+end if
+end select
+item.update()
+
+Select item.cid
+case 921
+if item.cid= 921 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value < 305 and item.dim[2].value < 762 then
+  item.pricelist="APS Liste de prix brute: Volet manuel sans cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "VCD"
+end if
+end select
+item.update()
+
+Select item.cid
+case 514
+if item.cid=514 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value >= 305 and item.dim[2].value >= 305 then
+  item.pricelist="APS Liste de prix brute: Volet manuel avec cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "Volume dampers"
+end if
+end select
+item.update()
+
+Select item.cid
+case 921
+if item.cid= 921 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value >= 305 and item.dim[2].value >= 305 then
+  item.pricelist="APS Liste de prix brute: Volet manuel avec cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "Volume dampers"
+end if
+end select
+item.update()
+
+REM-30----------------CID 380 Offset round---------REM
+If item.cid= 380 then
+    item.fabtable= "Round Offset STD"
+    item.pricelist= "APS Liste de prix brute: Offset rond"
 end if
 
 
-REM 42--------------Assign LAP-19-F to 34 clinch---------------------REM
-
-if item.seam[1].value= "LAP-19-F" then
-  item.seam[1].locked=false
-  item.seam[2].locked=false
-  item.seam[1].value= "3/4 Clinch"
-  item.seam[2].value= "3/4 Clinch"
-  item.seam[1].locked=true
-  item.seam[2].locked=true
+REM-31----------------CID 921 VMAN round---------REM
+Select item.cid
+case 92
+if item.cid= 921 and item.option["Type"].value="Round" then
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "Round Dampers"
+  item.pricelist="APS Liste de prix brute: Volet Rond"
 end if
+end select
+item.update()
+
+REM 32----------------CID 162, 151, 71 Reduit Conique---------REM
+If item.cid=162 then
+  item.pricelist= "APS Liste de prix brute: Reduits standard 12"" et 24"""
+    item.fabtable = "Reducer"
+end if
+
+if item.cid= 71 then
+  item.fabtable ="Reducer-non-standard"
+  item.pricelist="APS Liste de prix brute: Reduits standard 12"" et 24"""
+end if
+
+if item.cid= 151 then
+  item.fabtable ="Reducer"
+  item.pricelist="APS Liste de prix brute: Reduits standard 12"" et 24"""
+end if
+item.update()
+
+
+REM 33----------------Spiral Mate Connector on Rectangular Duct---------REM
+
+
+REM 34----------------Change galvanise de galvanized---------REM
+
+
+REM 35----------------Assign 2WG 48S Spec ---------REM
+
+If item.servicetype = "Rectangular Duct" and item.material="Galvanized" then
+    item.specification="2WG 48S"
+end if
+
+REM 36----------------Change imported MAJ spiral mate spec to TDF ---------REM
+
+If ITEM.Connector[1].value = "SpiralMate{V900_Lot3}" and item.type="Rectangular" then
+  ITEM.Connector[1].locked=False
+  ITEM.Connector[1].value="TDF"
+  ITEM.Connector[2].locked=False
+  ITEM.Connector[2].value="TDF"
+end if
+item.update()
+
+REM 37---------------Change imported MAJ connector to FI 1/2---------REM
+
+If ITEM.Connector[1].VALUE = "6@90°INT" then
+     ITEM.Connector[1].locked=False
+      ITEM.Connector[1].value="FI-1/2"""
+      ITEM.Connector[1].locked=True
+end if
+item.update()
+
+REM 37---------------Change T-Joint connector from 1'' to our 7/8" standard---------------------REM
+
+If ITEM.Connector[1].VALUE = "T-25" then
+     ITEM.Connector[1].locked=False
+      ITEM.Connector[1].value="T-7/8''"
+      ITEM.Connector[1].locked=True
+end if
+
+
+
+REM 37---------------CID 40 spiral assign F table and Price list---------------------REM
+
+Select item.cid
+case 40
+if item.cid= 40 then
+  item.pricelist="APS Liste de prix brute: Spirale"
+  item.fabtable = "Round Spiral Std."
+end if
+item.update()
+end select
+item.update()
+
+
+item.update()
+
+REM 38---------------Change TDC-Taper connector 2 to TDF---------------------REM
+
+
+
+
+If ITEM.Connector[1].VALUE = "tdc-taper" then
+     ITEM.Connector[1].locked=False
+      ITEM.Connector[1].value="TDF"
+      ITEM.Connector[1].locked=True
+End if
+
+
+REM 39---------------Change imported accoustic 1"" to our accoustic in metric---------------------REM
+if ITEM.insspec= "Ac 1''" then
+item.insulation.locked=false
+item.insulation.status= "Inside"
+item.insulation.materiallock= false
+item.insulation.material= "APS: ACC"
+item.insulation.gauge= "APS: 25.00"
+item.insulation.locked=true
+end if
+item.update()
+
+
+REM 40--------------Assign Fab table and price list to Coudes Rond CID 97, 61---------------------REM
+
+if item.cid= 61 and item.dim[3].value= 45.00 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable = "Round 45 Elbow STD"
+end if
+item.update()
+
+if item.cid= 61 and item.dim[3].value= 90 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable = "Round 90 Elbow STD"
+end if
+item.update()
+
+if item.cid= 61 and item.dim[3].value= 60 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable = "Round 60 Elbow STD"
+end if
+item.update()
+
+if item.cid= 61 and item.dim[3].value= 22.5 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable = "Round 22.5 Elbow Std."
+end if
+item.update()
+
+if item.cid= 97 and item.dim[3].value= 45 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable = "Round 45 Elbow STD"
+end if
+item.update()
+
+if item.cid= 97 and item.dim[4].value= 90.00 then
+  item.fabtable ="Round 90 Elbow Long STD"
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.servicetype="Round Duct"
+  item.cuttype="Machine Cut"
+  item.boughtout = false
+end if
+item.update()
+
+if item.cid= 97 and item.dim[3].value= 60 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable ="Round 60 Elbow STD"
+end if
+item.update()
+
+if item.cid= 97 and item.dim[3].value= 22.5 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable = "Round 22.5 Elbow Std."
+end if
+item.update()
+
+
+
+
+
+
 
 REM-------Fin--------REM
 REM-------Fin--------REM
