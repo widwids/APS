@@ -1894,9 +1894,18 @@ for s = 1 to 5
   endif
 next s
 
+REM 42--------------Assign LAP-19-F to 3/4 clinch---------------------REM
 
+for s = 1 to 5
 
-
+  if item.seam[s] then
+    if item.seam[s].value= "LAP-19-F" then
+      item.seam[s].locked=false
+      item.seam[s].value= "3/4 Clinch"
+      item.seam[s].locked=true
+    endif
+  endif
+next s  
 
 REM-------Fin--------REM
 REM-------Fin--------REM

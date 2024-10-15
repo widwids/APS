@@ -1,8 +1,6 @@
-dim s
+for s = 1 to 5
 
-for s = 1 to 3
-
-  if item.connector[s] then
+  if item.seam[s] then
     if item.seam[s].value= "petit lock" then
     item.seam[s].locked=false
     item.seam[s].value= "L-Pitts"
