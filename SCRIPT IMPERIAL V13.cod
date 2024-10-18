@@ -225,100 +225,89 @@ if item.seam[1] then
 
 end if
 
-REM-4------------Change les connecteurs du client aux standards de shop de APS----------REM
-
+REM 4 -----------Change les connecteurs du client aux standards de shop de APS----------REM
  
 dim j
 
 for j = 1 to 3
-
   if item.connector[j] then
+    select item.connector[j].value
 
-  select item.connector[j].value
+      case "SB", "S-B", "S-BS", "SBS"
+        item.connector[j].locked=false
+        item.connector[j].value = "SB"
+        item.connector[j].locked=true
 
-   case "SB", "S-B", "S-BS", "SBS"
+      case "TDC", "TDF", "TDF-APS", "TDX"    
+        item.connector[j].locked=false
+        item.connector[j].value = "TDF"
+        item.connector[j].locked=true
 
-    item.connector[j].locked=false
-          item.connector[j].value = "SB"
-          item.connector[j].locked=true
+      case "TDC-Rapp", "TDF-Rapp"
+        item.connector[j].locked=false
+        item.connector[j].value = "TDF-RAPP"
+        item.connector[j].locked=true
 
-  case "TDC", "TDF", "TDF-APS", "TDX"
- 
-    item.connector[j].locked=false
-          item.connector[j].value = "TDF"
-          item.connector[j].locked=true
+      case "T1", "T1""", "T-1", "T-1""", "TJ1", "TJ1""", "TJ-1", "TJ-1""", "PT"    
+        item.connector[j].locked=false
+        item.connector[j].value = "T-7/8''"
+        item.connector[j].locked=true
 
-  case "T1", "T1""", "T-1", "T-1""", "TJ1", "TJ1""", "TJ-1", "TJ-1""", "PT"
- 
-    item.connector[j].locked=false
-          item.connector[j].value = "T-7/8''"
-          item.connector[j].locked=true
+      case "TJ-3/4", "T-3/4", "TJ-3/4""", "T.75", "T.75""", "T-.75", "T-.75""", "TJ.75", "TJ.75""", "TJ-.75", "TJ-.75""", "T0.75", "T0.75""", "T-0.75", "T-0.75""", "TJ0.75", "TJ0.75""", "TJ-0.75", "TJ-0.75"""
+        item.connector[j].locked=false
+        item.connector[j].value = "T-7/8''"
+        item.connector[j].locked=true
 
-  case "TJ-3/4", "T-3/4", "TJ-3/4""", "T.75", "T.75""", "T-.75", "T-.75""", "TJ.75", "TJ.75""", "TJ-.75", "TJ-.75""", "T0.75", "T0.75""", "T-0.75", "T-0.75""", "TJ0.75", "TJ0.75""", "TJ-0.75", "TJ-0.75"""
- 
-    item.connector[j].locked=false
-          item.connector[j].value = "T-7/8''"
-          item.connector[j].locked=true
+      case "T1.5", "T1.5""", "T-1.5", "T-1.5""", "TJ1.5", "TJ1.5""", "TJ-1.5", "TJ-1.5""", "T1-1/2", "T1-1/2""", "T-1-1/2", "T-1-1/2""", "TJ1-1/2", "TJ1-1/2""", "TJ-1-1/2", "TJ-1-1/2"""
+        item.connector[j].locked=false
+        item.connector[j].value = "T-1.5''"
+        item.connector[j].locked=true
 
-  case "T1.5", "T1.5""", "T-1.5", "T-1.5""", "TJ1.5", "TJ1.5""", "TJ-1.5", "TJ-1.5""", "T1-1/2", "T1-1/2""", "T-1-1/2", "T-1-1/2""", "TJ1-1/2", "TJ1-1/2""", "TJ-1-1/2", "TJ-1-1/2"""
- 
-    item.connector[j].locked=false
-          item.connector[j].value = "T-1.5''"
-          item.connector[j].locked=true
+    REM ---Flanges
 
-REM---Flanges
+      case "FLG 1/2", "FLG 1/2""", "FLG 1/2 Out", "FLG 1/2""Out", "FLG 0.5", "FLG 0.5""", "FLG 0.5 Out", "FLG 0.5"" Out", "13@90°"
+        item.connector[j].locked=false
+        item.connector[j].value = "FO-1/2"""
+        item.connector[j].locked=true
 
-  case "FLG 1/2", "FLG 1/2""", "FLG 1/2 Out", "FLG 1/2""Out", "FLG 0.5", "FLG 0.5""", "FLG 0.5 Out", "FLG 0.5"" Out", "13@90°"
- 
-    item.connector[j].locked=false
-          item.connector[j].value = "FO-1/2"""
-          item.connector[j].locked=true
+      case "FLG 1/2 In", "FLG 1/2""In", "FLG 0.5 In", "FLG 0.5""In", "13@90°INT", "1/2 in"
+        item.connector[j].locked=false
+        item.connector[j].value = "FI-1/2"""
+        item.connector[j].locked=true
 
-  case "FLG 1/2 In", "FLG 1/2""In", "FLG 0.5 In", "FLG 0.5""In", "13@90°INT", "1/2 in"
- 
-    item.connector[j].locked=false
-          item.connector[j].value = "FI-1/2"""
-          item.connector[j].locked=true
+    case "FLG 1", "FLG 1""", "FLG 1 Out", "FLG 1""Out", "25@90°", "1 ext"
+        item.connector[j].locked=false
+        item.connector[j].value = "FO-1"""
+        item.connector[j].locked=true
 
- case "FLG 1", "FLG 1""", "FLG 1 Out", "FLG 1""Out", "25@90°", "1 ext"
- 
-    item.connector[j].locked=false
-          item.connector[j].value = "FO-1"""
-          item.connector[j].locked=true
+    case "FLG 1 CP", "FLG 1""CP", "FLG 1 Out CP", "FLG 1"" Out CP", "25@90°CP"
+        item.connector[j].locked=false
+        item.connector[j].value = "FO-1""CP"
+        item.connector[j].locked=true
 
- case "FLG 1 CP", "FLG 1""CP", "FLG 1 Out CP", "FLG 1"" Out CP", "25@90°CP"
- 
-    item.connector[j].locked=false
-          item.connector[j].value = "FO-1""CP"
-          item.connector[j].locked=true
+    case "FLG 1 In", "FLG 1""In", "25@90°INT"
+        item.connector[j].locked=false
+        item.connector[j].value = "FI-1"""
+        item.connector[j].locked=true
 
- case "FLG 1 In", "FLG 1""In", "25@90°INT"
- 
-    item.connector[j].locked=false
-          item.connector[j].value = "FI-1"""
-          item.connector[j].locked=true
+    case "FLG 3/4", "FLG 3/4""", "FLG 3/4 Out", "FLG 3/4""Out", "FLG 0.75", "FLG 0.75""", "FLG 0.75 Out", "FLG 0.75""Out", "19@90°", "3/4 ext"
+        item.connector[j].locked=false
+        item.connector[j].value = "FO-3/4"""
+        item.connector[j].locked=true
 
- case "FLG 3/4", "FLG 3/4""", "FLG 3/4 Out", "FLG 3/4""Out", "FLG 0.75", "FLG 0.75""", "FLG 0.75 Out", "FLG 0.75""Out", "19@90°", "3/4 ext"
- 
-    item.connector[j].locked=false
-          item.connector[j].value = "FO-3/4"""
-          item.connector[j].locked=true
+    case "FLG 3/4 CP", "FLG 3/4""CP", "FLG 3/4 Out CP", "FLG 3/4""Out CP", "FLG 0.75 CP", "FLG 0.75""CP", "FLG 0.75 Out CP", "FLG 0.75""Out CP", "19@90°CP"
+    
+        item.connector[j].locked=false
+              item.connector[j].value = "FO-3/4""CP"
+              item.connector[j].locked=true
 
- case "FLG 3/4 CP", "FLG 3/4""CP", "FLG 3/4 Out CP", "FLG 3/4""Out CP", "FLG 0.75 CP", "FLG 0.75""CP", "FLG 0.75 Out CP", "FLG 0.75""Out CP", "19@90°CP"
- 
-    item.connector[j].locked=false
-          item.connector[j].value = "FO-3/4""CP"
-          item.connector[j].locked=true
+    case "FLG 3/4 In", "FLG 3/4""In", "FLG 0.75 In", "FLG 0.75""In", "19@90°INT"
+        item.connector[j].locked=false
+        item.connector[j].value = "FI-3/4"""
+        item.connector[j].locked=true
 
-case "FLG 3/4 In", "FLG 3/4""In", "FLG 0.75 In", "FLG 0.75""In", "19@90°INT"
- 
-    item.connector[j].locked=false
-          item.connector[j].value = "FI-3/4"""
-          item.connector[j].locked=true
-
-   end select
+    end select
   end if
-
 next j
 
 REM-5------------Change les SEAMS du client aux standards de shop de APS----------REM

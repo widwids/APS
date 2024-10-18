@@ -1,10 +1,14 @@
-for s = 1 to 5
 
-  if item.seam[s] then
-    if item.seam[s].value= "petit lock" then
-    item.seam[s].locked=false
-    item.seam[s].value= "L-Pitts"
-    item.seam[s].locked=true
+
+dim c
+
+for c = 1 to 5
+  if item.connector[c] then
+    if item.connector[c].value= "TDC-Rapp" or item.connector[c].value="TDF-Rapp" or item.connector[c].value="TDC" then
+    debug "ah bin caline"
+    item.connector[c].locked=false
+    item.connector[c].value= "TDF-RAPP"
+    item.connector[c].locked=true
     endif
   endif
-next s  
+next c
