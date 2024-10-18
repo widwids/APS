@@ -285,36 +285,30 @@ REM --- Flanges
   end if
 next j
 
-REM-5------------Change les SEAMS du client aux standards de shop de APS----------REM
+REM 5 ----- SEAMS aux standards APS -----
 
 dim s
 
 for s = 1 to 3
-
- if item.seam[s] then
-
-  select item.seam[s].value
-
-   case "Lap 0.5""", "Lap 0.5", "0.5"" Lap", "0.5""Lap", "0.5 Lap", "1/2 Lap", "Lap 1/2", "1/2"" Lap", "Lap 1/2""","1/2"" clinch"
+  if item.seam[s] then
 
     item.seam[s].locked=false
-          item.seam[s].value = "1/2 clinch"
-          item.seam[s].locked=true
+    select item.seam[s].value
 
-   case "Lap 0.75""", "Lap 0.75", "0.75"" Lap", "0.75""Lap", "0.75 Lap", "3/4 Lap", "Lap 3/4", "3/4"" Lap", "Lap 3/4""", "3/4"" clinch", "Lap 1""", "Lap 1", "1"" Lap", "1""Lap", "1 Lap", "1 Lap", "Lap 1", "1"" Lap", "Lap 1""","1"" clinch"
+      case "Lap 0.5""", "Lap 0.5", "0.5"" Lap", "0.5""Lap", "0.5 Lap", "1/2 Lap", "Lap 1/2", "1/2"" Lap", "Lap 1/2""","1/2"" clinch"
+        item.seam[s].value = "1/2 Clinch"
 
-    item.seam[s].locked=false
-          item.seam[s].value = "3/4 clinch"
-          item.seam[s].locked=true
+      case "LAP-19-F", "Lap 0.75""", "Lap 0.75", "0.75"" Lap", "0.75""Lap", "0.75 Lap", "3/4 Lap", "Lap 3/4", "3/4"" Lap", "Lap 3/4""", "3/4"" clinch", "Lap 1""", "Lap 1", "1"" Lap", "1""Lap", "1 Lap", "1 Lap", "Lap 1", "1"" Lap", "Lap 1""","1"" clinch"
+        item.seam[s].value = "3/4 Clinch"
 
+      case "petit lock"
+        item.seam[s].value = "L-Pitts"
 
-  end select
+    end select
+    item.seam[s].locked=true
 
- end if
-
+  end if
 next s
-
-
 
 REM-6---------Longueurs courtes (CID=1) à Machine Cut,  Option 1 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F" ----------------REM
 
@@ -1622,30 +1616,6 @@ end if
 End select
 item.update()
 
-REM 41--------------Assign petit lock seam to L Pitts---------------------REM
-
-for s = 1 to 5
-  if item.seam[s] then
-    if item.seam[s].value= "petit lock" then
-      item.seam[s].locked=false
-      item.seam[s].value= "L-Pitts"
-      item.seam[s].locked=true
-    endif
-  endif
-next s
-
-REM 42--------------Assign LAP-19-F to 3/4 clinch---------------------REM
-
-for s = 1 to 5
-
-  if item.seam[s] then
-    if item.seam[s].value= "LAP-19-F" then
-      item.seam[s].locked=false
-      item.seam[s].value= "3/4 Clinch"
-      item.seam[s].locked=true
-    endif
-  endif
-next s  
 
 REM-------Fin--------REM
 REM-------Fin--------REM
