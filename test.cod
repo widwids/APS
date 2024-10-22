@@ -1,14 +1,170 @@
+rem debug item.dim[3].value
+rem debug item.cid
+
+REM 7---------Longueurs pleines , SB ou TDF à Decoiled pour Vicon------------REM
+
+rem gaijez IMPERIAL 16 = 0.0635 | 18 = 0.0516 | 20 = 0.0396 | 22= 0.0336 | 24 = 0.0276 | 26 = 0.0217 |
+rem gaijez METRIQUE 16 = 1.613  | 18 = 1.31   | 20 = 1.005  | 22= 0.853  | 24 = 0.711  | 26 = 0.551  |
+
+if item.cid = 866 then
+
+  if item.dim[3].value<>"auto" then
+    item.option["Override Cut Type"].value="Machine cut"
+  end if
+
+  if item.dim[3].value = "Auto" and 
+    item.connector[1].value = ("SB" or "TDF" or "T-7/8''") or
 
 
-dim c
 
-for c = 1 to 5
-  if item.connector[c] then
-    if item.connector[c].value= "TDC-Rapp" or item.connector[c].value="TDF-Rapp" or item.connector[c].value="TDC" then
-    debug "ah bin caline"
-    item.connector[c].locked=false
-    item.connector[c].value= "TDF-RAPP"
-    item.connector[c].locked=true
-    endif
-  endif
-next c
+
+    item.connector[1].value = "SB" and
+    item.dim[3].value <
+
+
+
+    
+
+    item.connector[1].value = ("SB" or "TDF" or "T-7/8''") and
+    item.connector[1].value = ("SB" or "TDF" or "T-7/8''") and
+
+    item.connector[1].value=item.connector[2].value then
+      item.option["Override Cut Type"].value="Decoiled Straight"
+      item.cuttype="Decoiled Straight"
+    
+REM dim max48 = scale*48
+REM debug max48
+    if item.dim[3].numvalue < (scale * 48) then
+REM    if item.dim[3].numvalue < max48 then
+     Dim Newgauge = 0
+     select item.gauge
+      Case 0.0216
+     item.gaugelock=false
+     item.gauge = 0.0218
+     item.gaugelock=true
+      Case 0.0276
+     item.gaugelock=false
+     item.gauge = 0.0277
+     item.gaugelock=true
+      Case 0.0336
+     item.gaugelock=false
+     item.gauge = 0.0337
+     item.gaugelock=true
+      Case 0.0396
+     item.gaugelock=false
+     item.gauge = 0.0397
+     item.gaugelock=true
+      Case 0.052
+     item.gaugelock=false
+     item.gauge = 0.053
+     item.gaugelock=true
+      Case 0.551
+     item.gaugelock=false
+     item.gauge = 0.552
+     item.gaugelock=true
+      Case 0.711, 0.701
+     item.gaugelock=false
+     item.gauge = 0.712
+     item.gaugelock=true
+      Case 0.853
+     item.gaugelock=false
+     item.gauge = 0.854
+     item.gaugelock=true
+      Case 1.005
+     item.gaugelock=false
+     item.gauge = 1.006
+     item.gaugelock=true
+      Case 1.31
+     item.gaugelock=false
+     item.gauge = 1.32
+     item.gaugelock=true
+     end select
+   end if
+    if item.dim[3].numvalue > (scale * 48) then
+
+rem gaijez IMPERIAL 16 = 0.0635 | 18 = 0.0516 | 20 = 0.0396 | 22= 0.0336 | 24 = 0.0276 | 26 = 0.0217 |
+rem gaijez METRIQUE 16 = 1.613  | 18 = 1.31   | 20 = 1.005  | 22= 0.853  | 24 = 0.711  | 26 = 0.551  |
+
+     Dim Newgauge = 0
+     select item.gauge
+      Case 0.0217
+     item.gaugelock=false
+     item.gauge = 0.0219
+     item.gaugelock=true
+      Case 0.0276
+     item.gaugelock=false
+     item.gauge = 0.0278
+     item.gaugelock=true
+      Case 0.0336
+     item.gaugelock=false
+     item.gauge = 0.0338
+     item.gaugelock=true
+      Case 0.0396
+     item.gaugelock=false
+     item.gauge = 0.0398
+     item.gaugelock=true
+      Case 0.052
+     item.gaugelock=false
+     item.gauge = 0.054
+     item.gaugelock=true
+      Case 0.551
+     item.gaugelock=false
+     item.gauge = 0.553
+     item.gaugelock=true
+      Case 0.711, 0.701
+     item.gaugelock=false
+     item.gauge = 0.713
+     item.gaugelock=true
+      Case 0.853
+     item.gaugelock=false
+     item.gauge = 0.855
+     item.gaugelock=true
+      Case 1.005
+     item.gaugelock=false
+     item.gauge = 1.007
+     item.gaugelock=true
+      Case 1.31
+     item.gaugelock=false
+     item.gauge = 1.33
+     item.gaugelock=true
+     end select
+   end if
+  else
+     item.option["Override Cut Type"].value="Machine Cut"
+     item.cuttype="Machine Cut"
+  end if
+end if
+
+item.update()
+
+
+
+
+
+
+
+REM 9--------Longueurs Vicon, (866) Option 15 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F"----------------REM
+
+if item.cid = 866 then
+
+if item.option["Override Cut Type"].value="Decoiled Straight" then
+
+ if (item.dim[1].value/scale + item.dim[2].value/scale) *2 < 120 then
+   item.option["override"].value = "1 Part Straight"
+ end if
+
+ if (item.dim[1].value/scale + item.dim[2].value/scale) *2 > 120 then
+   item.option["override"].value = "2xL"
+ end if
+
+REM  if (item.dim[2].value/scale + (2 * item.dim[1].value/scale)) > 120 then
+REM    item.option["override"].value = "2xL"
+REM  end if
+
+ if item.dim[1].value/scale + item.dim[2].value/scale > 120 then
+   item.option["override"].value = "4xI,M-M,F-F"
+ end if
+
+end if
+end if
+

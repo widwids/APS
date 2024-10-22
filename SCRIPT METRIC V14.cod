@@ -240,7 +240,7 @@ for j = 1 to 3
       case "SB", "S-B", "S-BS", "SBS"
         item.connector[j].value = "SB"
 
-      case "TDC", "TDF", "TDF-APS", "TDX", "tdc-taper"
+      case "TDC", "TDF-APS", "TDX", "tdc-taper", "TJ-TDF"
         item.connector[j].value = "TDF"
 
       case "TDC-Rapp", "TDF-Rapp"
@@ -286,6 +286,7 @@ REM --- Flanges
 
   end if
 next j
+item.update()
 
 REM 5 ----- SEAMS aux standards APS -----
 
@@ -311,6 +312,7 @@ for s = 1 to 3
 
   end if
 next s
+item.update()
 
 REM-6---------Longueurs courtes (CID=1) à Machine Cut,  Option 1 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F" ----------------REM
 
