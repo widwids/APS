@@ -1,68 +1,68 @@
-rem Checkstuff_APS_r8.cod
+rem TEST SCRIPTING METRIC.cod
 rem
 rem 18/04/6
 rem Julien Dufresne et Yvon Dufresne - Novybec
-REM r2 - 18-12-21 - Révision générale, selon les demandes de Pasquale suivantes:
+REM r2 - 18-12-21 - R�vision g�n�rale, selon les demandes de Pasquale suivantes:
 REM
 REM Rectangulaire :
 REM
-REM  OK- Modifier les « flanges » des clients à nos flanges tel notre base de donné – Seulement 0.5", ¾" et 1" in et out seront passées dans le tordeur, dû au nombre presque infini de possibilités.
-REM  OK- Changer les T-3/4 ou T-1’’ pour T-7/8 APS- s’applique au taps aussi - OK
-REM  OK- Les agrafes « ½ lap etc… » doit être changé a « ½ clinch », même chose si ¾  ou 1 Lap est spécifié- doit être converti a ¾-clinch . - OK
-REM  RÉPONSE REQUISE – BUG - Dans les patrons long droite, transition, taps- les « notch » par défaut devrait être « V » et l’angle devrait être par défaut 25 dégrée sauf quand le conduit a un joint TDF l’angle du V Notch devrait être « auto »
-REM                         - Il y a un bug sur les transitions que je tente de corriger. Pour le moment, au lieu de "Auto", les Vee Notches seront à 20 degrés. Aviser si tu veux un autre degré en attendant.
-REM  RÉPONSE REQUISE Les conduits VICON qui ont un « stretchout » plus de 120’’ doit être configuré soit en « L » ou en 4 panneau. Cette règle ne s’applique pas sur les long droites coupé au plasma.
+REM  OK- Modifier les � flanges � des clients � nos flanges tel notre base de donn� � Seulement 0.5", �" et 1" in et out seront pass�es dans le tordeur, d� au nombre presque infini de possibilit�s.
+REM  OK- Changer les T-3/4 ou T-1�� pour T-7/8 APS- s�applique au taps aussi - OK
+REM  OK- Les agrafes � � lap etc� � doit �tre chang� a � � clinch �, m�me chose si �  ou 1 Lap est sp�cifi�- doit �tre converti a �-clinch . - OK
+REM  R�PONSE REQUISE � BUG - Dans les patrons long droite, transition, taps- les � notch � par d�faut devrait �tre � V � et l�angle devrait �tre par d�faut 25 d�gr�e sauf quand le conduit a un joint TDF l�angle du V Notch devrait �tre � auto �
+REM                         - Il y a un bug sur les transitions que je tente de corriger. Pour le moment, au lieu de "Auto", les Vee Notches seront � 20 degr�s. Aviser si tu veux un autre degr� en attendant.
+REM  R�PONSE REQUISE Les conduits VICON qui ont un � stretchout � plus de 120�� doit �tre configur� soit en � L � ou en 4 panneau. Cette r�gle ne s�applique pas sur les long droites coup� au plasma.
 REM                         - Seront soit en "L", en "1xI+1xU", ou en 4 panneaux. Aviser si ok.
-REM  OK- Les coudes a rayon – La bande du dos(part 4) « Length adjust for part 4 = +.0625’’ ou + 1.5875mm, pour la gorge (Part 3) : « Length adjust for part 3= -.0625 ou -1.5875mm. - OK
-REM  BUG – OK -Tous les carré a rond avec joint TDF(C1) doit être TJ-TDF par default/ Le C2- ¼ lap tacké/scellé et le SE integré/ l’agrafe = ½ clinch . Aussi, un probleme recurrent- il manque le ½’’ pour faire le clinch sur les collets rond
-REM  RÉPONSE REQUISE - Les plenums(grill box)- le V-notch angle doit etre 75 degree- Collets ronds doit avoit ½’’ clinch et le C2= Tap. Seulement pour le "BE"? Il n'y a pas de diameter adjust pour du "SE"
-REM  OK-Tous les agrafes pour les conduits rectangulaire doit être L-Pitts / Les conduits ayant moins de 6’’ de long l’agrafe doit être ¾ clinch- OK
-REM  OK-Culottes a rayon qui transforme le S2 doit etre converti a 1inch clinch et le « v-notch angle » = 30degrees  - OK
-REM  OK-Tous les conduits rectangulaire devrait être classé dans le service type « rectangular duct » - OK
+REM  OK- Les coudes a rayon � La bande du dos(part 4) � Length adjust for part 4 = +.0625�� ou + 1.5875mm, pour la gorge (Part 3) : � Length adjust for part 3= -.0625 ou -1.5875mm. - OK
+REM  BUG � OK -Tous les carr� a rond avec joint TDF(C1) doit �tre TJ-TDF par default/ Le C2- � lap tack�/scell� et le SE integr�/ l�agrafe = � clinch . Aussi, un probleme recurrent- il manque le ��� pour faire le clinch sur les collets rond
+REM  R�PONSE REQUISE - Les plenums(grill box)- le V-notch angle doit etre 75 degree- Collets ronds doit avoit ��� clinch et le C2= Tap. Seulement pour le "BE"? Il n'y a pas de diameter adjust pour du "SE"
+REM  OK-Tous les agrafes pour les conduits rectangulaire doit �tre L-Pitts / Les conduits ayant moins de 6�� de long l�agrafe doit �tre � clinch- OK
+REM  OK-Culottes a rayon qui transforme le S2 doit etre converti a 1inch clinch et le � v-notch angle � = 30degrees  - OK
+REM  OK-Tous les conduits rectangulaire devrait �tre class� dans le service type � rectangular duct � - OK
 REM
 REM  Rond :
 REM
-REM   **ATTENTION - Règle générale : la spécification des spirales + raccords  devrait être le nôtre soit « Spiral 10’’ WG » Il faudra ajouter (copier/coller) les entries de
-REM       ton "galvanized" dans le matériel du client ("GALV" par exemple) , dans le spec "Spiral 10" WG" pour que cà fonctionne. Attention en recopiant… les calibres du client changent!!
-REM       Les remettre comme original. Bien exécuter la procédure de traitement des fichiers MAJ pour les matériaux avant de rouler le script.
-REM  -Tous les collets ronds des réduits ou offset doit avoir ½ clinch par défaut.
-REM  -Tous les C1 sur les coudes doivent s’ajuster selon notre standard- Gorelock 1,2 ou 3. L’agrafe par default doit être ½ clinch.
-REM  RÉPONSE REQUISE - Pour les réduits et offsets, même chose que les coudes sauf s’applique sur le C1 et C2 – Si je change le C1 et C2, comment tu vas faire pour savoir si c'est requis SE ou BE?
-REM  Les coudes BE/SE-souvent le SE est paramétrées pour enlever 1/8’’ mais ça crée une erreur donc remettre le 1/8’’.
-REM  - Tous les conduits ronds devrait être classé dans le service type « round duct » - OK, et pour le Oval ? Flat Oval, ou Round Duct?
+REM   **ATTENTION - R�gle g�n�rale : la sp�cification des spirales + raccords  devrait �tre le n�tre soit � Spiral 10�� WG � Il faudra ajouter (copier/coller) les entries de
+REM       ton "galvanized" dans le mat�riel du client ("GALV" par exemple) , dans le spec "Spiral 10" WG" pour que c� fonctionne. Attention en recopiant� les calibres du client changent!!
+REM       Les remettre comme original. Bien ex�cuter la proc�dure de traitement des fichiers MAJ pour les mat�riaux avant de rouler le script.
+REM  -Tous les collets ronds des r�duits ou offset doit avoir � clinch par d�faut.
+REM  -Tous les C1 sur les coudes doivent s�ajuster selon notre standard- Gorelock 1,2 ou 3. L�agrafe par default doit �tre � clinch.
+REM  R�PONSE REQUISE - Pour les r�duits et offsets, m�me chose que les coudes sauf s�applique sur le C1 et C2 � Si je change le C1 et C2, comment tu vas faire pour savoir si c'est requis SE ou BE?
+REM  Les coudes BE/SE-souvent le SE est param�tr�es pour enlever 1/8�� mais �a cr�e une erreur donc remettre le 1/8��.
+REM  - Tous les conduits ronds devrait �tre class� dans le service type � round duct � - OK, et pour le Oval ? Flat Oval, ou Round Duct?
 REM
-REM r3 -  19-01-21 - Solidification de la fonction pour déterminer métrique ou impérial.
-REM r4 -  19-11-13 - Ajustement des diamêtre, selon la dimension, le calibre et les BE/SE
+REM r3 -  19-01-21 - Solidification de la fonction pour d�terminer m�trique ou imp�rial.
+REM r4 -  19-11-13 - Ajustement des diam�tre, selon la dimension, le calibre et les BE/SE
 REM r4c - 19-12-13 - Si Specs deviennent "SPIRAL 10"WG", unlock gauge, update et Lock again.
 REM                  Cependant, le client n'aura plus les calibres de conduits qu'il demande, mais ceux de APS.
 REM r5 -  20-06-02 - Ajustement des Options "Seam Position"=0, "Single Segment"=Yes et "Marker Type"=None pour les CID 61
-REM r6 -  21-03-02 - Ajustement des Options "Length adjust for Part 4 (et Part 3) pour les coudes à rayon (-0.0625)
-REM r7 -  21-05-07 - Insulation dimension à "outside"
+REM r6 -  21-03-02 - Ajustement des Options "Length adjust for Part 4 (et Part 3) pour les coudes � rayon (-0.0625)
+REM r7 -  21-05-07 - Insulation dimension � "outside"
 REM r8 -  21-09-15 - Ajout de longueurs de 5 pieds sur la Vicon
 
 
-REM-1---------Job en métrique ou impériale, ajuste la variable "Scale" selon le cas.---------------------------------------------------REM
+REM-1---------Job en m�trique ou imp�riale, ajuste la variable "Scale" selon le cas.---------------------------------------------------REM
 REM-2---------AJOUT DE NOTE POUR VOLET MANUEL AVEC ISOLATION THERMIQUE-----------------------------------------------------------------REM
 REM-2a--------ENLEVE L'ISOLATION THERMIQUE---------------------------------------------------------------------------------------------REM
-REM-3---------Ajuste le Irish Lock à "L-Pitts" si L>6, sinon à "3/4 Clinch"------------------------------------------------------------REM
+REM-3---------Ajuste le Irish Lock � "L-Pitts" si L>6, sinon � "3/4 Clinch"------------------------------------------------------------REM
 REM-4---------Change les connecteurs du client aux standards de shop de APS------------------------------------------------------------REM
 REM-5---------Change les SEAMS du client aux standards de shop de APS------------------------------------------------------------------REM
-REM-6---------Longueurs courtes (CID=1) à Machine Cut,  Option 1 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F" -----------------------REM
-REM-7---------Longueurs pleines , SB ou TDF à Decoiled pour Vicon----------------------------------------------------------------------REM
-REM-9---------Longueurs Vicon, (866) Option 15 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F"------------------------------------------REM
+REM-6---------Longueurs courtes (CID=1) � Machine Cut,  Option 1 � "1 part Straight", ou "2xL" ou "4xI,M-M,F-F" -----------------------REM
+REM-7---------Longueurs pleines , SB ou TDF � Decoiled pour Vicon----------------------------------------------------------------------REM
+REM-9---------Longueurs Vicon, (866) Option 15 � "1 part Straight", ou "2xL" ou "4xI,M-M,F-F"------------------------------------------REM
 REM-10--------Bottines en 2ou4 morceaux? rem--- Ajustement du VDepth selon IL----------------------------------------------------------REM
-REM-11--------Tapers en 4, 3 ou 2 mcx? TJ-TDF si angle trop prononcé selon gauge ------------------------------------------------------REM
-REM-12--------Use "V-Notch" ET par défaut à 25deg, sauf si TDF à 20deg-----------------------------------------------------------------REM
-REM-13--------Coudes à rayon---- Adjust for part 3 et 4--------------------------------------------------------------------------------REM
-REM-14--------Coudes à rayon et offsets rectangulaires ---- Seam cut back à "0" et Allow central tierods à "Yes"-----------------------REM
-REM-15--------Carrés à Rond TJ-TDF, 1/4"LAP TACK/SCELLER-SE (ou BE) **Voir section des CONNECTEURS au haut du fichier. ---1/2 Clinch---REM
-REM-16--------Plenums VNotch Angle à 75 deg-, collet 1/2 clinch et C2 à "TAP"----------------------------------------------------------REM
+REM-11--------Tapers en 4, 3 ou 2 mcx? TJ-TDF si angle trop prononc� selon gauge ------------------------------------------------------REM
+REM-12--------Use "V-Notch" ET par d�faut � 25deg, sauf si TDF � 20deg-----------------------------------------------------------------REM
+REM-13--------Coudes � rayon---- Adjust for part 3 et 4--------------------------------------------------------------------------------REM
+REM-14--------Coudes � rayon et offsets rectangulaires ---- Seam cut back � "0" et Allow central tierods � "Yes"-----------------------REM
+REM-15--------Carr�s � Rond TJ-TDF, 1/4"LAP TACK/SCELLER-SE (ou BE) **Voir section des CONNECTEURS au haut du fichier. ---1/2 Clinch---REM
+REM-16--------Plenums VNotch Angle � 75 deg-, collet 1/2 clinch et C2 � "TAP"----------------------------------------------------------REM
 REM-17--------CULOTTE, wrapper en 1 ou 2 mcx-------------------------------------------------------------------------------------------REM
 REM-18--------Change Service type selon "Library"--------------------------------------------------------------------------------------REM
-REM-19--------Conduits Spiral à Spec = "SPIRAL 10"WG"----------------------------------------------------------------------------------REM
-REM-20--------Toutes les longueurs Spirales à BE---------------------------------------------------------------------------------------REM
-REM-21--------Carrés à Rond à Spec="Spiral 10"WG"--------------------------------------------------------------------------------------REM
-REM-22--------Inside dims insulation à "OUTSIDE"---------------------------------------------------------------------------------------REM
+REM-19--------Conduits Spiral � Spec = "SPIRAL 10"WG"----------------------------------------------------------------------------------REM
+REM-20--------Toutes les longueurs Spirales � BE---------------------------------------------------------------------------------------REM
+REM-21--------Carr�s � Rond � Spec="Spiral 10"WG"--------------------------------------------------------------------------------------REM
+REM-22--------Inside dims insulation � "OUTSIDE"---------------------------------------------------------------------------------------REM
 
 REM Seams:
 REM
@@ -92,8 +92,8 @@ REM
 REM Connecteurs:
 REM RONDS
 REM
-REM 1/4"LAP Tacké-Scellé SE
-REM 1/4"LAP Tacké-Scellé BE
+REM 1/4"LAP Tack�-Scell� SE
+REM 1/4"LAP Tack�-Scell� BE
 REM TAP-SE
 REM TAP-BE
 REM SE-BEAD 3"
@@ -116,23 +116,22 @@ if instr(1,DBPath,"Metric") then
   scale = 1
 end if
 
-REM 1--------------- Set gauge if not already defined---------------------
-
 if not item.gauge then
-  if item.material = "erreur" or item.material = "error" or item.material = "" then
-    item.specification = "2WG 48"
-    item.material = "Galvanized"
 
-    item.gaugelock = false
-    
-    if scale = 1 then
-        item.gauge = 0.0276
-    else
-        item.gauge = 0.711
+    if item.material = "erreur" or item.material = "error"  or item.material = "" then
+        item.specification = "2WG 48"
+        item.material = "Galvanized"
+
+        if scale = 1 then
+         item.gaugelock=false
+         item.gauge = 0.0276
+         item.gaugelock=true
+        else
+         item.gaugelock=false
+         item.gauge = 0.0711
+         item.gaugelock=true
+        end if
     end if
-
-    item.gaugelock = true        
-  end if
 end if
 
 REM-2---------------AJOUT DE NOTE POUR VOLET MANUEL AVEC ISOLATION THERMIQUE----------------------
@@ -160,13 +159,13 @@ end if
 ENDIF
 item.update()
 
-REM-22--------------------INSIDE DIMS INSULATION à "OUTSIDE"-----------------------------REM
+REM-22--------------------INSIDE DIMS INSULATION � "OUTSIDE"-----------------------------REM
 
 rem debug item.dimside
 item.dimside = "outside"
 rem debug item.dimside
 
-REM-3----------Ajuste le Irish Lock à "L-Pitts" si L>6, sinon à "3/4 Clinch"-------------REM
+REM-3----------Ajuste le Irish Lock � "L-Pitts" si L>6, sinon � "3/4 Clinch"-------------REM
 
 REM dim Dt
 REM dim Mt
@@ -225,92 +224,134 @@ if item.seam[1] then
 
 end if
 
-REM 4 ----- Connecteurs aux standards APS -----
+REM-4------------Change les connecteurs du client aux standards de shop de APS----------REM
+
  
 dim j
 
 for j = 1 to 3
+
   if item.connector[j] then
 
+  select item.connector[j].value
+
+   case "SB", "S-B", "S-BS", "SBS", "S&B"
+
     item.connector[j].locked=false
-    select item.connector[j].value
+          item.connector[j].value = "SB"
+          item.connector[j].locked=true
 
-      case "SB", "S-B", "S-BS", "SBS"
-        item.connector[j].value = "SB"
+  case "TDC", "TDF", "TDF-APS", "TDX"
+ 
+    item.connector[j].locked=false
+          item.connector[j].value = "TDF"
+          item.connector[j].locked=true
 
-      case "TDC", "TDF", "TDF-APS", "TDX"    
-        item.connector[j].value = "TDF"
+  case "T1", "T1""", "T-1", "T-1""", "TJ1", "TJ1""", "TJ-1", "TJ-1""", "PT"
+ 
+    item.connector[j].locked=false
+          item.connector[j].value = "T-7/8''"
+          item.connector[j].locked=true
 
-      case "TDC-Rapp", "TDF-Rapp"
-        item.connector[j].value = "TDF-RAPP"
+  case "TJ-3/4", "T-3/4", "TJ-3/4""", "T.75", "T.75""", "T-.75", "T-.75""", "TJ.75", "TJ.75""", "TJ-.75", "TJ-.75""", "T0.75", "T0.75""", "T-0.75", "T-0.75""", "TJ0.75", "TJ0.75""", "TJ-0.75", "TJ-0.75"""
+ 
+    item.connector[j].locked=false
+          item.connector[j].value = "T-7/8''"
+          item.connector[j].locked=true
 
-      case "T1", "T1""", "T-1", "T-1""", "TJ1", "TJ1""", "TJ-1", "TJ-1""", "PT"    
-        item.connector[j].value = "T-7/8''"
+  case "T1.5", "T1.5""", "T-1.5", "T-1.5""", "TJ1.5", "TJ1.5""", "TJ-1.5", "TJ-1.5""", "T1-1/2", "T1-1/2""", "T-1-1/2", "T-1-1/2""", "TJ1-1/2", "TJ1-1/2""", "TJ-1-1/2", "TJ-1-1/2"""
+ 
+    item.connector[j].locked=false
+          item.connector[j].value = "T-1.5''"
+          item.connector[j].locked=true
 
-      case "TJ-3/4", "T-3/4", "TJ-3/4""", "T.75", "T.75""", "T-.75", "T-.75""", "TJ.75", "TJ.75""", "TJ-.75", "TJ-.75""", "T0.75", "T0.75""", "T-0.75", "T-0.75""", "TJ0.75", "TJ0.75""", "TJ-0.75", "TJ-0.75"""
-        item.connector[j].value = "T-7/8''"
+REM---Flanges
 
-      case "T1.5", "T1.5""", "T-1.5", "T-1.5""", "TJ1.5", "TJ1.5""", "TJ-1.5", "TJ-1.5""", "T1-1/2", "T1-1/2""", "T-1-1/2", "T-1-1/2""", "TJ1-1/2", "TJ1-1/2""", "TJ-1-1/2", "TJ-1-1/2"""
-        item.connector[j].value = "T-1.5''"
+  case "FLG 1/2", "FLG 1/2""", "FLG 1/2 Out", "FLG 1/2""Out", "FLG 0.5", "FLG 0.5""", "FLG 0.5 Out", "FLG 0.5"" Out", "13@90�"
+ 
+    item.connector[j].locked=false
+          item.connector[j].value = "FO-1/2"""
+          item.connector[j].locked=true
 
-REM --- Flanges
+  case "FLG 1/2 In", "FLG 1/2""In", "FLG 0.5 In", "FLG 0.5""In", "13@90�INT", "1/2 in"
+ 
+    item.connector[j].locked=false
+          item.connector[j].value = "FI-1/2"""
+          item.connector[j].locked=true
 
-      case "FLG 1/2", "FLG 1/2""", "FLG 1/2 Out", "FLG 1/2""Out", "FLG 0.5", "FLG 0.5""", "FLG 0.5 Out", "FLG 0.5"" Out", "13@90°"
-        item.connector[j].value = "FO-1/2"""
-
-      case "FLG 1/2 In", "FLG 1/2""In", "FLG 0.5 In", "FLG 0.5""In", "13@90°INT", "1/2 in"
-        item.connector[j].value = "FI-1/2"""
-
-      case "FLG 1", "FLG 1""", "FLG 1 Out", "FLG 1""Out", "25@90°", "1 ext"
+ case "FLG 1", "FLG 1""", "FLG 1 Out", "FLG 1""Out", "25@90�", "1 ext"
+ 
+    item.connector[j].locked=false
           item.connector[j].value = "FO-1"""
+          item.connector[j].locked=true
 
-      case "FLG 1 CP", "FLG 1""CP", "FLG 1 Out CP", "FLG 1"" Out CP", "25@90°CP"
+ case "FLG 1 CP", "FLG 1""CP", "FLG 1 Out CP", "FLG 1"" Out CP", "25@90�CP"
+ 
+    item.connector[j].locked=false
           item.connector[j].value = "FO-1""CP"
+          item.connector[j].locked=true
 
-      case "FLG 1 In", "FLG 1""In", "25@90°INT"
+ case "FLG 1 In", "FLG 1""In", "25@90�INT"
+ 
+    item.connector[j].locked=false
           item.connector[j].value = "FI-1"""
+          item.connector[j].locked=true
 
-      case "FLG 3/4", "FLG 3/4""", "FLG 3/4 Out", "FLG 3/4""Out", "FLG 0.75", "FLG 0.75""", "FLG 0.75 Out", "FLG 0.75""Out", "19@90°", "3/4 ext"
+ case "FLG 3/4", "FLG 3/4""", "FLG 3/4 Out", "FLG 3/4""Out", "FLG 0.75", "FLG 0.75""", "FLG 0.75 Out", "FLG 0.75""Out", "19@90�", "3/4 ext"
+ 
+    item.connector[j].locked=false
           item.connector[j].value = "FO-3/4"""
+          item.connector[j].locked=true
 
-      case "FLG 3/4 CP", "FLG 3/4""CP", "FLG 3/4 Out CP", "FLG 3/4""Out CP", "FLG 0.75 CP", "FLG 0.75""CP", "FLG 0.75 Out CP", "FLG 0.75""Out CP", "19@90°CP"
+ case "FLG 3/4 CP", "FLG 3/4""CP", "FLG 3/4 Out CP", "FLG 3/4""Out CP", "FLG 0.75 CP", "FLG 0.75""CP", "FLG 0.75 Out CP", "FLG 0.75""Out CP", "19@90�CP"
+ 
+    item.connector[j].locked=false
           item.connector[j].value = "FO-3/4""CP"
+          item.connector[j].locked=true
 
-      case "FLG 3/4 In", "FLG 3/4""In", "FLG 0.75 In", "FLG 0.75""In", "19@90°INT"
+case "FLG 3/4 In", "FLG 3/4""In", "FLG 0.75 In", "FLG 0.75""In", "19@90�INT"
+ 
+    item.connector[j].locked=false
           item.connector[j].value = "FI-3/4"""
+          item.connector[j].locked=true
 
-    end select
-    item.connector[j].locked=true
-
+   end select
   end if
+
 next j
 
-REM 5 ----- SEAMS aux standards APS -----
+REM-5------------Change les SEAMS du client aux standards de shop de APS----------REM
 
 dim s
 
 for s = 1 to 3
-  if item.seam[s] then
+
+ if item.seam[s] then
+
+  select item.seam[s].value
+
+   case "Lap 0.5""", "Lap 0.5", "0.5"" Lap", "0.5""Lap", "0.5 Lap", "1/2 Lap", "Lap 1/2", "1/2"" Lap", "Lap 1/2""","1/2"" clinch"
 
     item.seam[s].locked=false
-    select item.seam[s].value
+          item.seam[s].value = "1/2 clinch"
+          item.seam[s].locked=true
 
-      case "Lap 0.5""", "Lap 0.5", "0.5"" Lap", "0.5""Lap", "0.5 Lap", "1/2 Lap", "Lap 1/2", "1/2"" Lap", "Lap 1/2""","1/2"" clinch"
-        item.seam[s].value = "1/2 Clinch"
+   case "Lap 0.75""", "Lap 0.75", "0.75"" Lap", "0.75""Lap", "0.75 Lap", "3/4 Lap", "Lap 3/4", "3/4"" Lap", "Lap 3/4""", "3/4"" clinch", "Lap 1""", "Lap 1", "1"" Lap", "1""Lap", "1 Lap", "1 Lap", "Lap 1", "1"" Lap", "Lap 1""","1"" clinch"
 
-      case "LAP-19-F", "Lap 0.75""", "Lap 0.75", "0.75"" Lap", "0.75""Lap", "0.75 Lap", "3/4 Lap", "Lap 3/4", "3/4"" Lap", "Lap 3/4""", "3/4"" clinch", "Lap 1""", "Lap 1", "1"" Lap", "1""Lap", "1 Lap", "1 Lap", "Lap 1", "1"" Lap", "Lap 1""","1"" clinch"
-        item.seam[s].value = "3/4 Clinch"
+    item.seam[s].locked=false
+          item.seam[s].value = "3/4 clinch"
+          item.seam[s].locked=true
 
-      case "petit lock"
-        item.seam[s].value = "L-Pitts"
 
-    end select
-    item.seam[s].locked=true
+  end select
 
-  end if
+ end if
+
 next s
 
-REM-6---------Longueurs courtes (CID=1) à Machine Cut,  Option 1 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F" ----------------REM
+
+
+REM-6---------Longueurs courtes (CID=1) � Machine Cut,  Option 1 � "1 part Straight", ou "2xL" ou "4xI,M-M,F-F" ----------------REM
 
 
 if item.cid = 1 then
@@ -335,7 +376,7 @@ REM  end if
 
 end if
 
-REM-7---------Longueurs pleines , SB ou TDF à Decoiled pour Vicon------------REM
+REM-7---------Longueurs pleines , SB ou TDF � Decoiled pour Vicon------------REM
 
 rem gaijez IMPERIAL 16 = 0.0635 | 18 = 0.0516 | 20 = 0.0396 | 22= 0.0336 | 24 = 0.0276 | 26 = 0.0217 |
 rem gaijez METRIQUE 16 = 1.613  | 18 = 1.31   | 20 = 1.005  | 22= 0.853  | 24 = 0.711  | 26 = 0.551  |
@@ -357,7 +398,7 @@ REM debug max48
 REM    if item.dim[3].numvalue < max48 then
      Dim Newgauge = 0
      select item.gauge
-      Case 0.0217
+      Case 0.0216
      item.gaugelock=false
      item.gauge = 0.0218
      item.gaugelock=true
@@ -457,7 +498,7 @@ end if
 item.update()
 
 
-REM-8--------Longueurs Machine Cut, (866) Option 15 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F"----------------REM
+REM-8--------Longueurs Machine Cut, (866) Option 15 � "1 part Straight", ou "2xL" ou "4xI,M-M,F-F"----------------REM
 
 if item.cid = 866 then
 
@@ -483,7 +524,7 @@ end if
 end if
 
 
-REM-9--------Longueurs Vicon, (866) Option 15 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F"----------------REM
+REM-9--------Longueurs Vicon, (866) Option 15 � "1 part Straight", ou "2xL" ou "4xI,M-M,F-F"----------------REM
 
 if item.cid = 866 then
 
@@ -527,9 +568,9 @@ if item.cid = 7 then
 end if
 
 
-REM-11-----------Tapers en 4, 3 ou 2 mcx? TJ-TDF si angle trop prononcé selon gauge ---------------------REM
+REM-11-----------Tapers en 4, 3 ou 2 mcx? TJ-TDF si angle trop prononc� selon gauge ---------------------REM
 
-REM;;-----Changement de joint si angle trop prononcé pour TDF---------;;
+REM;;-----Changement de joint si angle trop prononc� pour TDF---------;;
 
 if item.cid = 2 then
 dim i
@@ -648,7 +689,7 @@ end if
 end if
 
 
-REM-12--------Use "V-Notch" ET par défaut à 25deg, sauf si TDF à 20deg-------------------REM
+REM-12--------Use "V-Notch" ET par d�faut � 25deg, sauf si TDF � 20deg-------------------REM
 
  if item.CID = 1 or item.CID = 35 or item.CID = 866 or item.CID = 7 or item.CID = 2 then
    item.option["Connector Fold Notch #1"].locked=false
@@ -679,7 +720,7 @@ REM-12--------Use "V-Notch" ET par défaut à 25deg, sauf si TDF à 20deg-------
 end if
 
 
-REM-13---------Coudes à rayon---- Adjust for part 3 et 4---------------------------REM
+REM-13---------Coudes � rayon---- Adjust for part 3 et 4---------------------------REM
 
 If (item.CID=17 or item.CID=4 or item.CID=22 or item.CID=23) and item.option[1].value="Radius" and item.dim[7].numvalue/scale > 3 then
   item.option[2].value = 0.0625*scale
@@ -688,7 +729,7 @@ end if
 REM--- y a pas l'option pour le CID 399!
 
 
-REM-14---------Coudes à rayon et offsets rectangulaires ---- Seam cut back à "0" et Allow central tierods à "Yes"---------------------------REM
+REM-14---------Coudes � rayon et offsets rectangulaires ---- Seam cut back � "0" et Allow central tierods � "Yes"---------------------------REM
 
 If item.CID=17 or item.CID=399 then
    item.option["Allow Central Tie Rods"].value = "Yes"
@@ -699,7 +740,7 @@ If item.CID=330 then
 end if
  
 
-REM-15-----------------Carrés à Rond TJ-TDF, 1/4"LAP TACK/SCELLER-SE (ou BE) **Voir section des CONNECTEURS au haut du fichier. ---1/2 Clinch
+REM-15-----------------Carr�s � Rond TJ-TDF, 1/4"LAP TACK/SCELLER-SE (ou BE) **Voir section des CONNECTEURS au haut du fichier. ---1/2 Clinch
 
 if item.CID = 8 or item.CID = 29 then
 dim j
@@ -713,13 +754,13 @@ for j = 1 to 3
    case "SE", "SE-BEAD 2""", "SE+BEAD 2""", "SE-BEAD 2''", "SE-BEAD 3""", "SE-BEAD 3''", "SE-BEAD1.5""", "SE-BEAD1.5''", "SE+BEAD3""", "SE+BEAD3''", "Small End", "S-E", "PB", "SE 2""", "SE Bead 3"""
 
     item.connector[j].locked=false
-          item.connector[j].value = "1/4""LAP Tacké-Scellé SE"
+          item.connector[j].value = "1/4""LAP Tack�-Scell� SE"
           item.connector[j].locked=true
 
    case "BE", "BEAD 2""", "BEAD 2''", "BEAD 3""", "BEAD 3''", "BEAD1.5""", "BEAD1.5''", "B-E", "BE-Dep", "GB", "GB (LAP13)"
 
     item.connector[j].locked=false
-          item.connector[j].value = "1/4""LAP Tacké-Scellé BE"
+          item.connector[j].value = "1/4""LAP Tack�-Scell� BE"
           item.connector[j].locked=true
    end select
   end if
@@ -738,7 +779,7 @@ next j
 
 end if
 
-REM-16------------Plenums VNotch Angle à 75 deg-, collet 1/2 clinch et C2 à "TAP"--------------------REM
+REM-16------------Plenums VNotch Angle � 75 deg-, collet 1/2 clinch et C2 � "TAP"--------------------REM
 
  if item.CID = 382 then
   item.option["Vee Notch Angle"].value = 75
@@ -809,8 +850,8 @@ REM-18-----------Change Service type selon "Library"---------------------REM
 
  
 
-REM-19------------Conduits Spiral à Spec = "SPIRAL 10"WG"----------------REM
-REM-19--Les entrées du spec de base dans le matériel "galvanized" doivent être recopiées dans le matérial du client pour que cà fonctionne.
+REM-19------------Conduits Spiral � Spec = "SPIRAL 10"WG"----------------REM
+REM-19--Les entr�es du spec de base dans le mat�riel "galvanized" doivent �tre recopi�es dans le mat�rial du client pour que c� fonctionne.
 
 if item.CID=61 then
   item.option["Diameter Reduction"].value=0
@@ -1126,8 +1167,8 @@ REM-----------------
       dim j
       for j = 1 to 5
 rem 4b
-rem on ne peut pas changer les diameter type à "outside" ou "inside"
-rem alors, j'ai augmenté le diam_ajust de 0.14 a`0.2
+rem on ne peut pas changer les diameter type � "outside" ou "inside"
+rem alors, j'ai augment� le diam_ajust de 0.14 a`0.2
 
         if item.connector[j] then
          if j=1 then
@@ -1457,14 +1498,14 @@ rem r4b
        item.seam[1].locked=false
      end if
  
-REM-20----------------Toutes les longueurs Spirales à BE----------REM
+REM-20----------------Toutes les longueurs Spirales � BE----------REM
 
      if item.CID=40 then
       item.connector[1].locked=false
       item.connector[2].locked=false
      end if
 
-REM-21----------------Carrés à Rond à Spec="Spiral 10""WG"---------REM
+REM-21----------------Carr�s � Rond � Spec="Spiral 10"WG"---------REM
      if item.CID <> 382 or item.CID <> 8 or item.CID <> 29 then
 rem Rev 4c
         item.gaugelock=false
@@ -1481,58 +1522,12 @@ rem Rev 4c
      end if
  end if
 
-REM============================================================
-REM * DESCRIPTION: Script to change the number of parts on a straight based on periphery
-REM *
-REM *----------------------------------------------------------------------------------------------------------------------
-REM *  CREATED BY: Garrett Tice-David Ronson
-REM *           DIRECT:
-REM *             CELL:
-REM *            EMAIL: support@asti.com
-REM *             DATE: 10/25/17
-REM * ----------------------------------------------------------------------------------------------------------------------
-REM *   REVISED BY: jimbon
-REM *             DATE: 10-31-2017
-REM ============================================================
-
-Select item.cid
-case 866
-
-Dim varWidth = item.dim[1].value
-Dim varDepth = item.dim[2].value
-Dim varPeriphery = (varWidth*2) + (varDepth*2)
-
-If varPeriphery < "122.1" then
-    item.option["Override"].value = "1 Part Straight"
-end if
-
-if varPeriphery > "122.1" and varPeriphery < "244.1" then
-    if varWidth > "111.75" or varDepth > "111.75" then
-      item.option["Override"].value = "4xI,M-F"
-    else item.option["Override"].value = "2xL"
-endif
-end if
-
-if varPeriphery > "244.1" then
-ITEM.OPTION["Override"].value = "4xI,M-F"
-end if
-
-if varWidth < "4" or varDepth < "4" then
-     ITEM.OPTION["Override"].value = "2xL"
-end if
-
-end select
-item.update()
-
-REM-22----------------Carre a rond price---------REM
+REM-22----------------ASSIGN PRICE LIST Car-Rond Asym----------REM
 if item.description = "Car-Rond Asym" then
-       item.pricelist = "APS Liste de prix brute: Transitions carré a rond"
+       item.pricelist = "APS Liste de prix brute: Transitions carr� a rond"
                 End If
 if item.cid = 8 then
-       item.pricelist = "APS Liste de prix brute: Transitions carré a rond"
-                End If
-if item.description = "Square To Round" then
-       item.pricelist = "APS Liste de prix brute: Transitions carré a rond"
+       item.pricelist = "APS Liste de prix brute: Transitions carr� a rond"
                 End If
 
 REM-23----------------ASSIGN PRICE LIST Conn Flex----------REM
@@ -1551,14 +1546,6 @@ if item.description = "Conn Flex 3po" and
 if item.description = "Conn Flex 6po" then
        item.pricelist = "APS Liste de prix brute: Joint Flexible 3-6-3"
                 End If
-if item.description= "Duct Canvas 3-6-3" then
-  item.pricelist = "APS Liste de prix brute: Joint Flexible 3-6-3"
-end if
-
-If item.cid=555 then
-  item.pricelist = "APS Liste de prix brute: Joint Flexible 3-3-3-rond"
-  item.fabtable = "Canvas-rond"
-end if
 
 REM-24----------------Carre a rond connectors adjustments---------REM
 Select ITEM.CID
@@ -1566,12 +1553,31 @@ Select ITEM.CID
   case 8
 
   if item.Option["Diameter Type"].Value = "Outside" Then
-    ITEM.Connector[2].Value = "1/4""LAP TACK/SCELLER"
+    ITEM.Connector[2].Value = "1/4""LAP Tack�-Scell� SE"
     ITEM.Connector[2].Locked = True
   endif
 
-EndSelect
+End Select
 
+Select ITEM.CID
+
+  case 8
+
+  if item.Option["Diameter Type"].Value = "Nominal" Then
+    ITEM.Connector[2].Value = "1/4""LAP Tack�-Scell� SE"
+    ITEM.Connector[2].Locked = True
+  endif
+
+End Select
+
+Select item.cid
+case 8
+    If ITEM.Connector[2].Value = "SE 3"" {9015-Globale}" then
+    ITEM.Connector[2].Locked = False
+    ITEM.Connector[2].Value = "1/4""LAP TACK/SCELLER"
+    ITEM.Connector[2].Locked = True
+  endif
+End Select
 
 REM-25----------------CID 866 set notch 1 and 2 to use vee notch---------REM
 if item.cid= 866 then
@@ -1582,20 +1588,23 @@ if item.cid= 866 then
 end if
 
 REM-26----------------CID 6 BRANCHE 45DEG---------REM
-if item.cid=875 and item.dim[4].value = "45" then
+if item.cid=16 then
   item.pricelist = "APS Liste de prix brute: Branche 45deg"
 end if
 
-
 REM-27----------------CID 921 CLE MAJ---------REM
-if item.cid=921 then
+Select item.cid
+case 921
+if item.cid=921 and item.option["Type"].value="Round" then
   item.pricelist="APS Liste de prix brute: Volet rond"
   item.servicetype="Duct Accessory"
   item.cuttype="Machine Cut"
   item.boughtout = false
   item.fabtable = "Round Dampers"
- 
 end if
+end select
+item.update()
+
 
 REM-28----------------CID 522 Coupling SE spirale---------REM
 if item.cid=522 then
@@ -1606,15 +1615,277 @@ if item.cid=522 then
   item.fabtable = "Round Coupling Std."
 end if
 
+REM-29----------------CID 921 and 514 VMAN rect---------REM
+
+Select item.cid
+case 514
+if item.cid=514 and item.dim[1].value < 305 and item.dim[2].value < 305 then
+  item.pricelist="APS Liste de prix brute: Volet manuel sans cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "VCD"
+end if
+end select
+item.update()
+
+Select item.cid
+case 921
+if item.cid= 921 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value < 305 and item.dim[2].value < 305 then
+  item.pricelist="APS Liste de prix brute: Volet manuel sans cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "VCD"
+end if
+end select
+item.update()
+
+Select item.cid
+case 514
+if item.cid=514 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value < 762 and item.dim[2].value < 305 then
+  item.pricelist="APS Liste de prix brute: Volet manuel sans cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "VCD"
+end if
+end select
+item.update()
+
+Select item.cid
+case 921
+if item.cid= 921 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value < 762 and item.dim[2].value < 305 then
+  item.pricelist="APS Liste de prix brute: Volet manuel sans cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "VCD"
+end if
+end select
+item.update()
+
+Select item.cid
+case 514
+if item.cid=514 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value < 305 and item.dim[2].value < 762 then
+  item.pricelist="APS Liste de prix brute: Volet manuel sans cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "VCD"
+end if
+end select
+item.update()
+
+Select item.cid
+case 921
+if item.cid= 921 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value < 305 and item.dim[2].value < 762 then
+  item.pricelist="APS Liste de prix brute: Volet manuel sans cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "VCD"
+end if
+end select
+item.update()
+
+Select item.cid
+case 514
+if item.cid=514 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value >= 305 and item.dim[2].value >= 305 then
+  item.pricelist="APS Liste de prix brute: Volet manuel avec cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "Volume dampers"
+end if
+end select
+item.update()
+
+Select item.cid
+case 921
+if item.cid= 921 and item.option["Type"].value="Rectangular" or item.option["Type"].value="Handle" and item.dim[1].value >= 305 and item.dim[2].value >= 305 then
+  item.pricelist="APS Liste de prix brute: Volet manuel avec cadre"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "Volume dampers"
+end if
+end select
+item.update()
+
+REM-30----------------CID 380 Offset round---------REM
+If item.cid= 380 then
+    item.fabtable= "Round Offset STD"
+    item.pricelist= "APS Liste de prix brute: Offset rond"
+end if
+
+
+REM-31----------------CID 921 VMAN round---------REM
+Select item.cid
+case 92
+if item.cid= 921 and item.option["Type"].value="Round" then
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "Round Dampers"
+  item.pricelist="APS Liste de prix brute: Volet Rond"
+end if
+end select
+item.update()
+
+REM 32----------------CID 162, 151, 71 Reduit Conique---------REM
+If item.cid=162 then
+  item.pricelist= "APS Liste de prix brute: Reduits standard 12"" et 24"""
+    item.fabtable = "Reducer"
+end if
+
+if item.cid= 71 then
+  item.fabtable ="Reducer-non-standard"
+  item.pricelist="APS Liste de prix brute: Reduits standard 12"" et 24"""
+end if
+
+if item.cid= 151 then
+  item.fabtable ="Reducer"
+  item.pricelist="APS Liste de prix brute: Reduits standard 12"" et 24"""
+end if
+item.update()
+
+
+REM 33----------------Spiral Mate Connector on Rectangular Duct---------REM
+
+
+REM 34----------------Change galvanise de galvanized---------REM
+
+
+REM 35----------------Assign 2WG 48S Spec ---------REM
+
+If item.servicetype = "Rectangular Duct" and item.material="Galvanized" then
+    item.specification="2WG 48S"
+end if
+
+REM 36----------------Change imported MAJ spiral mate spec to TDF ---------REM
+
+If ITEM.Connector[1].value = "SpiralMate{V900_Lot3}" and item.type="Rectangular" then
+  ITEM.Connector[1].locked=False
+  ITEM.Connector[1].value="TDF"
+  ITEM.Connector[2].locked=False
+  ITEM.Connector[2].value="TDF"
+end if
+item.update()
+
+REM 37---------------Change imported MAJ connector to FI 1/2---------REM
+
+If ITEM.Connector[1].VALUE = "6@90�INT" then
+     ITEM.Connector[1].locked=False
+      ITEM.Connector[1].value="FI-1/2"""
+      ITEM.Connector[1].locked=True
+end if
+item.update()
+
+REM 37---------------Change T-Joint connector from 1'' to our 7/8" standard---------------------REM
+
+If ITEM.Connector[1].VALUE = "T-25" then
+     ITEM.Connector[1].locked=False
+      ITEM.Connector[1].value="T-7/8''"
+      ITEM.Connector[1].locked=True
+end if
+
+
+
+REM 37---------------CID 40 spiral assign F table and Price list---------------------REM
+
+Select item.cid
+case 40
+if item.cid= 40 then
+  item.pricelist="APS Liste de prix brute: Spirale"
+  item.fabtable = "Round Spiral Std."
+end if
+item.update()
+end select
+item.update()
+
+
+item.update()
+
+REM 38---------------Change TDC-Taper connector 2 to TDF---------------------REM
+
+
+
+
+If ITEM.Connector[1].VALUE = "tdc-taper" then
+     ITEM.Connector[1].locked=False
+      ITEM.Connector[1].value="TDF"
+      ITEM.Connector[1].locked=True
+End if
+
+
+REM 39---------------Change imported accoustic 1"" to our accoustic in metric---------------------REM
+if ITEM.insspec= "Ac 1''" then
+item.insulation.locked=false
+item.insulation.status= "Inside"
+item.insulation.materiallock= false
+item.insulation.material= "APS: ACC"
+item.insulation.gauge= "APS: 25.00"
+item.insulation.locked=true
+end if
+item.update()
+
+
 REM 40--------------Assign Fab table and price list to Coudes Rond CID 97, 61---------------------REM
 
-Select ITEM.CID
-  case 61
-if item.cid= 61 then
+if item.cid= 61 and item.dim[3].value= 45.00 then
   item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable = "Round 45 Elbow STD"
 end if
-End select
 item.update()
+
+if item.cid= 61 and item.dim[3].value= 90 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable = "Round 90 Elbow STD"
+end if
+item.update()
+
+if item.cid= 61 and item.dim[3].value= 60 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable = "Round 60 Elbow STD"
+end if
+item.update()
+
+if item.cid= 61 and item.dim[3].value= 22.5 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable = "Round 22.5 Elbow Std."
+end if
+item.update()
+
+if item.cid= 97 and item.dim[3].value= 45 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable = "Round 45 Elbow STD"
+end if
+item.update()
+
+if item.cid= 97 and item.dim[4].value= 90.00 then
+  item.fabtable ="Round 90 Elbow Long STD"
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.servicetype="Round Duct"
+  item.cuttype="Machine Cut"
+  item.boughtout = false
+end if
+item.update()
+
+if item.cid= 97 and item.dim[3].value= 60 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable ="Round 60 Elbow STD"
+end if
+item.update()
+
+if item.cid= 97 and item.dim[3].value= 22.5 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+  item.fabtable = "Round 22.5 Elbow Std."
+end if
+item.update()
+
+
+
 
 
 REM-------Fin--------REM

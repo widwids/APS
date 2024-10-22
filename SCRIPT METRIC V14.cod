@@ -240,7 +240,7 @@ for j = 1 to 3
       case "SB", "S-B", "S-BS", "SBS"
         item.connector[j].value = "SB"
 
-      case "TDC", "TDF", "TDF-APS", "TDX"    
+      case "TDC", "TDF", "TDF-APS", "TDX", "tdc-taper"
         item.connector[j].value = "TDF"
 
       case "TDC-Rapp", "TDF-Rapp"
@@ -702,7 +702,7 @@ If item.CID=330 then
 end if
  
 
-REM-15-----------------Carrés à Rond TJ-TDF, 1/4"LAP TACK/SCELLER-SE (ou BE) **Voir section des CONNECTEURS au haut du fichier. ---1/2 Clinch
+REM 15-----------------Carrés à Rond TJ-TDF, 1/4"LAP TACK/SCELLER-SE (ou BE) **Voir section des CONNECTEURS au haut du fichier. ---1/2 Clinch
 
 if item.CID = 8 or item.CID = 29 then
 dim j
@@ -812,7 +812,7 @@ REM-18-----------Change Service type selon "Library"---------------------REM
 
  
 
-REM-19------------Conduits Spiral à Spec = "SPIRAL 10"WG"----------------REM
+REM 19------------Conduits Spiral à Spec = "SPIRAL 10"WG"----------------REM
 REM-19--Les entrées du spec de base dans le matériel "galvanized" doivent être recopiées dans le matérial du client pour que cà fonctionne.
 
 if item.CID=61 then
@@ -1768,14 +1768,6 @@ item.update()
 
 
 item.update()
-
-REM 38---------------Change TDC-Taper connector 2 to TDF---------------------REM
-
-If ITEM.Connector[1].VALUE = "tdc-taper" then
-     ITEM.Connector[1].locked=False
-      ITEM.Connector[1].value="TDF"
-      ITEM.Connector[1].locked=True
-End if
 
 REM 39---------------Change imported accoustic 1"" to our accoustic in metric---------------------REM
 

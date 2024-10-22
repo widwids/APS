@@ -1,0 +1,1630 @@
+rem Checkstuff_APS_r8.cod
+rem
+rem 18/04/6
+rem Julien Dufresne et Yvon Dufresne - Novybec
+REM r2 - 18-12-21 - Révision générale, selon les demandes de Pasquale suivantes:
+REM
+REM Rectangulaire :
+REM
+REM  OK- Modifier les « flanges » des clients à nos flanges tel notre base de donné – Seulement 0.5", ¾" et 1" in et out seront passées dans le tordeur, dû au nombre presque infini de possibilités.
+REM  OK- Changer les T-3/4 ou T-1’’ pour T-7/8 APS- s’applique au taps aussi - OK
+REM  OK- Les agrafes « ½ lap etc… » doit être changé a « ½ clinch », même chose si ¾  ou 1 Lap est spécifié- doit être converti a ¾-clinch . - OK
+REM  RÉPONSE REQUISE – BUG - Dans les patrons long droite, transition, taps- les « notch » par défaut devrait être « V » et l’angle devrait être par défaut 25 dégrée sauf quand le conduit a un joint TDF l’angle du V Notch devrait être « auto »
+REM                         - Il y a un bug sur les transitions que je tente de corriger. Pour le moment, au lieu de "Auto", les Vee Notches seront à 20 degrés. Aviser si tu veux un autre degré en attendant.
+REM  RÉPONSE REQUISE Les conduits VICON qui ont un « stretchout » plus de 120’’ doit être configuré soit en « L » ou en 4 panneau. Cette règle ne s’applique pas sur les long droites coupé au plasma.
+REM                         - Seront soit en "L", en "1xI+1xU", ou en 4 panneaux. Aviser si ok.
+REM  OK- Les coudes a rayon – La bande du dos(part 4) « Length adjust for part 4 = +.0625’’ ou + 1.5875mm, pour la gorge (Part 3) : « Length adjust for part 3= -.0625 ou -1.5875mm. - OK
+REM  BUG – OK -Tous les carré a rond avec joint TDF(C1) doit être TJ-TDF par default/ Le C2- ¼ lap tacké/scellé et le SE integré/ l’agrafe = ½ clinch . Aussi, un probleme recurrent- il manque le ½’’ pour faire le clinch sur les collets rond
+REM  RÉPONSE REQUISE - Les plenums(grill box)- le V-notch angle doit etre 75 degree- Collets ronds doit avoit ½’’ clinch et le C2= Tap. Seulement pour le "BE"? Il n'y a pas de diameter adjust pour du "SE"
+REM  OK-Tous les agrafes pour les conduits rectangulaire doit être L-Pitts / Les conduits ayant moins de 6’’ de long l’agrafe doit être ¾ clinch- OK
+REM  OK-Culottes a rayon qui transforme le S2 doit etre converti a 1inch clinch et le « v-notch angle » = 30degrees  - OK
+REM  OK-Tous les conduits rectangulaire devrait être classé dans le service type « rectangular duct » - OK
+REM
+REM  Rond :
+REM
+REM   **ATTENTION - Règle générale : la spécification des spirales + raccords  devrait être le nôtre soit « Spiral 10’’ WG » Il faudra ajouter (copier/coller) les entries de
+REM       ton "galvanized" dans le matériel du client ("GALV" par exemple) , dans le spec "Spiral 10" WG" pour que cà fonctionne. Attention en recopiant… les calibres du client changent!!
+REM       Les remettre comme original. Bien exécuter la procédure de traitement des fichiers MAJ pour les matériaux avant de rouler le script.
+REM  -Tous les collets ronds des réduits ou offset doit avoir ½ clinch par défaut.
+REM  -Tous les C1 sur les coudes doivent s’ajuster selon notre standard- Gorelock 1,2 ou 3. L’agrafe par default doit être ½ clinch.
+REM  RÉPONSE REQUISE - Pour les réduits et offsets, même chose que les coudes sauf s’applique sur le C1 et C2 – Si je change le C1 et C2, comment tu vas faire pour savoir si c'est requis SE ou BE?
+REM  Les coudes BE/SE-souvent le SE est paramétrées pour enlever 1/8’’ mais ça crée une erreur donc remettre le 1/8’’.
+REM  - Tous les conduits ronds devrait être classé dans le service type « round duct » - OK, et pour le Oval ? Flat Oval, ou Round Duct?
+REM
+REM r3 -  19-01-21 - Solidification de la fonction pour déterminer métrique ou impérial.
+REM r4 -  19-11-13 - Ajustement des diamêtre, selon la dimension, le calibre et les BE/SE
+REM r4c - 19-12-13 - Si Specs deviennent "SPIRAL 10"WG", unlock gauge, update et Lock again.
+REM                  Cependant, le client n'aura plus les calibres de conduits qu'il demande, mais ceux de APS.
+REM r5 -  20-06-02 - Ajustement des Options "Seam Position"=0, "Single Segment"=Yes et "Marker Type"=None pour les CID 61
+REM r6 -  21-03-02 - Ajustement des Options "Length adjust for Part 4 (et Part 3) pour les coudes à rayon (-0.0625)
+REM r7 -  21-05-07 - Insulation dimension à "outside"
+REM r8 -  21-09-15 - Ajout de longueurs de 5 pieds sur la Vicon
+
+
+REM-1---------Job en métrique ou impériale, ajuste la variable "Scale" selon le cas.---------------------------------------------------REM
+REM-2---------AJOUT DE NOTE POUR VOLET MANUEL AVEC ISOLATION THERMIQUE-----------------------------------------------------------------REM
+REM-2a--------ENLEVE L'ISOLATION THERMIQUE---------------------------------------------------------------------------------------------REM
+REM-3---------Ajuste le Irish Lock à "L-Pitts" si L>6, sinon à "3/4 Clinch"------------------------------------------------------------REM
+REM-4---------Change les connecteurs du client aux standards de shop de APS------------------------------------------------------------REM
+REM-5---------Change les SEAMS du client aux standards de shop de APS------------------------------------------------------------------REM
+REM-6---------Longueurs courtes (CID=1) à Machine Cut,  Option 1 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F" -----------------------REM
+REM-7---------Longueurs pleines , SB ou TDF à Decoiled pour Vicon----------------------------------------------------------------------REM
+REM-9---------Longueurs Vicon, (866) Option 15 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F"------------------------------------------REM
+REM-10--------Bottines en 2ou4 morceaux? rem--- Ajustement du VDepth selon IL----------------------------------------------------------REM
+REM-11--------Tapers en 4, 3 ou 2 mcx? TJ-TDF si angle trop prononcé selon gauge ------------------------------------------------------REM
+REM-12--------Use "V-Notch" ET par défaut à 25deg, sauf si TDF à 20deg-----------------------------------------------------------------REM
+REM-13--------Coudes à rayon---- Adjust for part 3 et 4--------------------------------------------------------------------------------REM
+REM-14--------Coudes à rayon et offsets rectangulaires ---- Seam cut back à "0" et Allow central tierods à "Yes"-----------------------REM
+REM-15--------Carrés à Rond TJ-TDF, 1/4"LAP TACK/SCELLER-SE (ou BE) **Voir section des CONNECTEURS au haut du fichier. ---1/2 Clinch---REM
+REM-16--------Plenums VNotch Angle à 75 deg-, collet 1/2 clinch et C2 à "TAP"----------------------------------------------------------REM
+REM-17--------CULOTTE, wrapper en 1 ou 2 mcx-------------------------------------------------------------------------------------------REM
+REM-18--------Change Service type selon "Library"--------------------------------------------------------------------------------------REM
+REM-19--------Conduits Spiral à Spec = "SPIRAL 10"WG"----------------------------------------------------------------------------------REM
+REM-20--------Toutes les longueurs Spirales à BE---------------------------------------------------------------------------------------REM
+REM-21--------Carrés à Rond à Spec="Spiral 10"WG"--------------------------------------------------------------------------------------REM
+REM-22--------Inside dims insulation à "OUTSIDE"---------------------------------------------------------------------------------------REM
+
+REM Seams:
+REM
+REM L-Pitts
+REM 3/4 clinch
+REM 1/2 clinch
+REM 1"Clinch
+REM
+REM
+REM Connecteurs:
+REM RECT
+REM
+REM SB
+REM TDF
+REM T-7/8''
+REM T-1.5''
+REM FO-1/2"
+REM FI-1/2"
+REM FO-1"
+REM FO-1"CP
+REM FI-1"
+REM FO-3/4"
+REM FO-3/4"CP
+REM FI-3/4"
+REM TJ-TDF
+REM
+REM Connecteurs:
+REM RONDS
+REM
+REM 1/4"LAP Tacké-Scellé SE
+REM 1/4"LAP Tacké-Scellé BE
+REM TAP-SE
+REM TAP-BE
+REM SE-BEAD 3"
+REM BEAD 3"
+
+REM -----------------------------REM-------------------------------REM------------------------------REM
+
+
+rem gaijez IMPERIAL 16 = 0.0635 | 18 = 0.0516 | 20 = 0.0396 | 22= 0.0336 | 24 = 0.0276 | 26 = 0.0217 |
+rem gaijez METRIQUE 16 = 1.613  | 18 = 1.31   | 20 = 1.005  | 22= 0.853  | 24 = 0.711  | 26 = 0.551  |
+
+rem (en stock)= debug item.subitem[1].customdata["custom data"].value
+
+dim scale
+dim DBPath=mappath_home
+
+if instr(1,DBPath,"Metric") then
+  scale = 25.4
+ else
+  scale = 1
+end if
+
+REM 1--------------- Set gauge if not already defined---------------------
+
+if not item.gauge then
+  if item.material = "erreur" or item.material = "error" or item.material = "" then
+    item.specification = "2WG 48"
+    item.material = "Galvanized"
+
+    item.gaugelock = false
+    
+    if scale = 1 then
+        item.gauge = 0.0276
+    else
+        item.gauge = 0.711
+    end if
+
+    item.gaugelock = true        
+  end if
+end if
+
+REM-2---------------AJOUT DE NOTE POUR VOLET MANUEL AVEC ISOLATION THERMIQUE----------------------
+
+ if (instr(1,item.filename,"Vma")) or (instr(1,item.filename,"Vm-0")) or (instr(1,item.filename,"Volet Sim")) then
+  if item.insulation.status="OUTSIDE" then
+    dim note_ex = item.notes
+    dim insul_ga = item.insulation.gauge
+    dim new_note = note_ex + " * C/A Spacer " + insul_ga + " haut et Shaft plus long"
+    item.notes = new_note
+  end if
+ end if
+
+REM-2a-------------------ENLEVE L'ISOLATION THERMIQUE--------------------
+
+rem dim isolthermique=item.insulation.status
+
+DIM CID=ITEM.CID
+IF CID <> 12 THEN
+if item.insulation.status="OUTSIDE" then
+item.ispeclock=false
+item.insulation.status="off"
+item.ispeclock=true
+end if
+ENDIF
+item.update()
+
+REM-22--------------------INSIDE DIMS INSULATION à "OUTSIDE"-----------------------------REM
+
+rem debug item.dimside
+item.dimside = "outside"
+rem debug item.dimside
+
+REM-3----------Ajuste le Irish Lock à "L-Pitts" si L>6, sinon à "3/4 Clinch"-------------REM
+
+REM dim Dt
+REM dim Mt
+REM Dt=job.date
+REM Mt=mid(Dt,6,2)
+REM if Mt="02" then
+REM scdf
+REM endif
+
+
+if item.seam[1] then
+
+  if instr(1,item.seam[1].value,"pit") or instr(1,item.seam[1].value,"il") or instr(1,item.seam[1].value,"irish") or instr(1,item.seam[1].value,"i.l") or instr(1,item.seam[1].value,"i l") or instr(1,item.seam[1].value,"L-Pitts") or instr(1,item.seam[1].value,"lock") then
+
+      item.seam[1].locked=false
+      item.seam[1].value = "L-Pitts"
+      item.seam[1].locked=true
+      if item.seam[2] and (item.cid <> 37) then
+        item.seam[2].locked=false
+        item.seam[2].value = "L-Pitts"
+        item.seam[2].locked=true
+      end if
+      if item.seam[3] then
+        item.seam[3].locked=false
+        item.seam[3].value = "L-Pitts"
+        item.seam[3].locked=true
+      end if
+      if item.seam[4] then
+        item.seam[4].locked=false
+        item.seam[4].value = "L-Pitts"
+        item.seam[4].locked=true
+      end if
+
+      if item.length < 6/scale then
+        item.seam[1].locked=false
+        item.seam[1].value = "3/4 clinch"
+        item.seam[1].locked=true
+        if item.seam[2] and (item.cid <> 37) then
+          item.seam[2].locked=false
+          item.seam[2].value = "3/4 clinch"
+          item.seam[2].locked=true
+        end if
+        if item.seam[3] then
+          item.seam[3].locked=false
+          item.seam[3].value = "3/4 clinch"
+          item.seam[3].locked=true
+        end if
+        if item.seam[4] then
+          item.seam[4].locked=false
+          item.seam[4].value = "3/4 clinch"
+          item.seam[4].locked=true
+        end if
+      end if
+
+  end if
+
+end if
+
+REM 4 ----- Connecteurs aux standards APS -----
+ 
+dim j
+
+for j = 1 to 3
+  if item.connector[j] then
+
+    item.connector[j].locked=false
+    select item.connector[j].value
+
+      case "SB", "S-B", "S-BS", "SBS"
+        item.connector[j].value = "SB"
+
+      case "TDC", "TDF", "TDF-APS", "TDX", "tdc-taper"
+        item.connector[j].value = "TDF"
+
+      case "TDC-Rapp", "TDF-Rapp"
+        item.connector[j].value = "TDF-RAPP"
+
+      case "T1", "T1""", "T-1", "T-1""", "TJ1", "TJ1""", "TJ-1", "TJ-1""", "PT"    
+        item.connector[j].value = "T-7/8''"
+
+      case "TJ-3/4", "T-3/4", "TJ-3/4""", "T.75", "T.75""", "T-.75", "T-.75""", "TJ.75", "TJ.75""", "TJ-.75", "TJ-.75""", "T0.75", "T0.75""", "T-0.75", "T-0.75""", "TJ0.75", "TJ0.75""", "TJ-0.75", "TJ-0.75"""
+        item.connector[j].value = "T-7/8''"
+
+      case "T1.5", "T1.5""", "T-1.5", "T-1.5""", "TJ1.5", "TJ1.5""", "TJ-1.5", "TJ-1.5""", "T1-1/2", "T1-1/2""", "T-1-1/2", "T-1-1/2""", "TJ1-1/2", "TJ1-1/2""", "TJ-1-1/2", "TJ-1-1/2"""
+        item.connector[j].value = "T-1.5''"
+
+REM --- Flanges
+
+      case "FLG 1/2", "FLG 1/2""", "FLG 1/2 Out", "FLG 1/2""Out", "FLG 0.5", "FLG 0.5""", "FLG 0.5 Out", "FLG 0.5"" Out", "13@90°"
+        item.connector[j].value = "FO-1/2"""
+
+      case "FLG 1/2 In", "FLG 1/2""In", "FLG 0.5 In", "FLG 0.5""In", "13@90°INT", "1/2 in"
+        item.connector[j].value = "FI-1/2"""
+
+      case "FLG 1", "FLG 1""", "FLG 1 Out", "FLG 1""Out", "25@90°", "1 ext"
+          item.connector[j].value = "FO-1"""
+
+      case "FLG 1 CP", "FLG 1""CP", "FLG 1 Out CP", "FLG 1"" Out CP", "25@90°CP"
+          item.connector[j].value = "FO-1""CP"
+
+      case "FLG 1 In", "FLG 1""In", "25@90°INT"
+          item.connector[j].value = "FI-1"""
+
+      case "FLG 3/4", "FLG 3/4""", "FLG 3/4 Out", "FLG 3/4""Out", "FLG 0.75", "FLG 0.75""", "FLG 0.75 Out", "FLG 0.75""Out", "19@90°", "3/4 ext"
+          item.connector[j].value = "FO-3/4"""
+
+      case "FLG 3/4 CP", "FLG 3/4""CP", "FLG 3/4 Out CP", "FLG 3/4""Out CP", "FLG 0.75 CP", "FLG 0.75""CP", "FLG 0.75 Out CP", "FLG 0.75""Out CP", "19@90°CP"
+          item.connector[j].value = "FO-3/4""CP"
+
+      case "FLG 3/4 In", "FLG 3/4""In", "FLG 0.75 In", "FLG 0.75""In", "19@90°INT"
+          item.connector[j].value = "FI-3/4"""
+
+    end select
+    item.connector[j].locked=true
+
+  end if
+next j
+
+REM 5 ----- SEAMS aux standards APS -----
+
+dim s
+
+for s = 1 to 3
+  if item.seam[s] then
+
+    item.seam[s].locked=false
+    select item.seam[s].value
+
+      case "Lap 0.5""", "Lap 0.5", "0.5"" Lap", "0.5""Lap", "0.5 Lap", "1/2 Lap", "Lap 1/2", "1/2"" Lap", "Lap 1/2""","1/2"" clinch"
+        item.seam[s].value = "1/2 Clinch"
+
+      case "LAP-19-F", "Lap 0.75""", "Lap 0.75", "0.75"" Lap", "0.75""Lap", "0.75 Lap", "3/4 Lap", "Lap 3/4", "3/4"" Lap", "Lap 3/4""", "3/4"" clinch", "Lap 1""", "Lap 1", "1"" Lap", "1""Lap", "1 Lap", "1 Lap", "Lap 1", "1"" Lap", "Lap 1""","1"" clinch"
+        item.seam[s].value = "3/4 Clinch"
+
+      case "petit lock"
+        item.seam[s].value = "L-Pitts"
+
+    end select
+    item.seam[s].locked=true
+
+  end if
+next s
+
+REM-6---------Longueurs courtes (CID=1) à Machine Cut,  Option 1 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F" ----------------REM
+
+
+if item.cid = 1 then
+
+ item.cuttype = "Machine Cut"
+
+ if (item.dim[1].value/scale + item.dim[2].value/scale) *2 < 57.99 then
+   item.option["Straight Type"].value = "1 Part Straight"
+ end if
+
+if (item.dim[1].value/scale + item.dim[2].value/scale) *2 > 57.99 then
+   item.option["Straight Type"].value = "2xL"
+ end if
+
+REM  if (item.dim[2].value/scale + (2 * item.dim[1].value/scale)) > 57.99 then
+REM    item.option["Straight Type"].value = "2xL"
+REM  end if
+
+ if item.dim[1].value/scale + item.dim[2].value/scale > 57.99 then
+   item.option["Straight Type"].value = "4xI,M-M,F-F"
+ end if
+
+end if
+
+REM-7---------Longueurs pleines , SB ou TDF à Decoiled pour Vicon------------REM
+
+rem gaijez IMPERIAL 16 = 0.0635 | 18 = 0.0516 | 20 = 0.0396 | 22= 0.0336 | 24 = 0.0276 | 26 = 0.0217 |
+rem gaijez METRIQUE 16 = 1.613  | 18 = 1.31   | 20 = 1.005  | 22= 0.853  | 24 = 0.711  | 26 = 0.551  |
+
+if item.cid = 866 then
+
+  if item.dim[3].value<>"auto" then
+   item.option["Override Cut Type"].value="Machine cut"
+  end if
+
+  if item.dim[3].value = "Auto" and (instr(1,item.connector[1].value,"SB") or instr(1,item.connector[1].value,"S-B") or instr(1,item.connector[1].value,"TD")) and
+                                  (instr(1,item.connector[2].value,"SB") or instr(1,item.connector[2].value,"S-B") or instr(1,item.connector[2].value,"TD")) and item.connector[1].value=item.connector[2].value then
+
+     item.option["Override Cut Type"].value="Decoiled Straight"
+     item.cuttype="Decoiled Straight"
+REM dim max48 = scale*48
+REM debug max48
+    if item.dim[3].numvalue < (scale * 48) then
+REM    if item.dim[3].numvalue < max48 then
+     Dim Newgauge = 0
+     select item.gauge
+      Case 0.0217
+     item.gaugelock=false
+     item.gauge = 0.0218
+     item.gaugelock=true
+      Case 0.0276
+     item.gaugelock=false
+     item.gauge = 0.0277
+     item.gaugelock=true
+      Case 0.0336
+     item.gaugelock=false
+     item.gauge = 0.0337
+     item.gaugelock=true
+      Case 0.0396
+     item.gaugelock=false
+     item.gauge = 0.0397
+     item.gaugelock=true
+      Case 0.052
+     item.gaugelock=false
+     item.gauge = 0.053
+     item.gaugelock=true
+      Case 0.551
+     item.gaugelock=false
+     item.gauge = 0.552
+     item.gaugelock=true
+      Case 0.711, 0.701
+     item.gaugelock=false
+     item.gauge = 0.712
+     item.gaugelock=true
+      Case 0.853
+     item.gaugelock=false
+     item.gauge = 0.854
+     item.gaugelock=true
+      Case 1.005
+     item.gaugelock=false
+     item.gauge = 1.006
+     item.gaugelock=true
+      Case 1.31
+     item.gaugelock=false
+     item.gauge = 1.32
+     item.gaugelock=true
+     end select
+   end if
+    if item.dim[3].numvalue > (scale * 48) then
+
+rem gaijez IMPERIAL 16 = 0.0635 | 18 = 0.0516 | 20 = 0.0396 | 22= 0.0336 | 24 = 0.0276 | 26 = 0.0217 |
+rem gaijez METRIQUE 16 = 1.613  | 18 = 1.31   | 20 = 1.005  | 22= 0.853  | 24 = 0.711  | 26 = 0.551  |
+
+     Dim Newgauge = 0
+     select item.gauge
+      Case 0.0217
+     item.gaugelock=false
+     item.gauge = 0.0219
+     item.gaugelock=true
+      Case 0.0276
+     item.gaugelock=false
+     item.gauge = 0.0278
+     item.gaugelock=true
+      Case 0.0336
+     item.gaugelock=false
+     item.gauge = 0.0338
+     item.gaugelock=true
+      Case 0.0396
+     item.gaugelock=false
+     item.gauge = 0.0398
+     item.gaugelock=true
+      Case 0.052
+     item.gaugelock=false
+     item.gauge = 0.054
+     item.gaugelock=true
+      Case 0.551
+     item.gaugelock=false
+     item.gauge = 0.553
+     item.gaugelock=true
+      Case 0.711, 0.701
+     item.gaugelock=false
+     item.gauge = 0.713
+     item.gaugelock=true
+      Case 0.853
+     item.gaugelock=false
+     item.gauge = 0.855
+     item.gaugelock=true
+      Case 1.005
+     item.gaugelock=false
+     item.gauge = 1.007
+     item.gaugelock=true
+      Case 1.31
+     item.gaugelock=false
+     item.gauge = 1.33
+     item.gaugelock=true
+     end select
+   end if
+  else
+     item.option["Override Cut Type"].value="Machine Cut"
+     item.cuttype="Machine Cut"
+  end if
+end if
+
+item.update()
+
+
+REM-8--------Longueurs Machine Cut, (866) Option 15 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F"----------------REM
+
+if item.cid = 866 then
+
+if item.option["Override Cut Type"].value="Machine Cut" then
+
+ if (item.dim[1].value/scale + item.dim[2].value/scale) *2 < 57.99 then
+   item.option["override"].value = "1 Part Straight"
+ end if
+
+ if (item.dim[1].value/scale + item.dim[2].value/scale) *2 > 57.99 then
+   item.option["override"].value = "2xL"
+ end if
+
+REM  if (item.dim[2].value/scale + (2 * item.dim[1].value/scale)) > 57.99 then
+REM    item.option["override"].value = "2xL"
+REM  end if
+
+ if item.dim[1].value/scale + item.dim[2].value/scale > 57.99 then
+   item.option["override"].value = "4xI,M-M,F-F"
+ end if
+
+end if
+end if
+
+
+REM-9--------Longueurs Vicon, (866) Option 15 à "1 part Straight", ou "2xL" ou "4xI,M-M,F-F"----------------REM
+
+if item.cid = 866 then
+
+if item.option["Override Cut Type"].value="Decoiled Straight" then
+
+ if (item.dim[1].value/scale + item.dim[2].value/scale) *2 < 120 then
+   item.option["override"].value = "1 Part Straight"
+ end if
+
+ if (item.dim[1].value/scale + item.dim[2].value/scale) *2 > 120 then
+   item.option["override"].value = "2xL"
+ end if
+
+REM  if (item.dim[2].value/scale + (2 * item.dim[1].value/scale)) > 120 then
+REM    item.option["override"].value = "2xL"
+REM  end if
+
+ if item.dim[1].value/scale + item.dim[2].value/scale > 120 then
+   item.option["override"].value = "4xI,M-M,F-F"
+ end if
+
+end if
+end if
+
+
+
+REM-10------------Bottines en 2ou4 morceaux? rem--- Ajustement du VDepth selon IL---------REM
+
+if item.cid = 7 then
+
+ item.option[2].value = "Yes"
+ dim blank4 = 0
+
+ blank4 = item.dim[6].value*2 + item.dim[2].value
+
+ if blank4/scale > 56.2 then
+
+  item.option[2].value = "No"
+
+ end if
+end if
+
+
+REM-11-----------Tapers en 4, 3 ou 2 mcx? TJ-TDF si angle trop prononcé selon gauge ---------------------REM
+
+REM;;-----Changement de joint si angle trop prononcé pour TDF---------;;
+
+if item.cid = 2 then
+dim i
+for i=0 to 1
+if instr(1,item.connector[i+1].value,"TD") then
+    if item.dim[10].value >= 20 and (item.gauge > 0.9 or (item.gauge >= 0.035 and item.gauge <= 0.06)) then
+        if (item.dim[1].value = item.dim[3].value and (item.dim[8].value = 0 or item.dim[8].value = "Central"))
+         or (item.dim[2].value = item.dim[4].value and (item.dim[9].value = 0 or item.dim[9].value = "Central")) then
+         if item.dim[6+i].value < 2*scale then
+          item.dim[6+i].value = 2*scale
+         end if
+        else
+            item.connector[i+1].locked=false
+            item.connector[i+1].value = "TJ-TDF"
+            item.connector[i+1].locked=true
+        end if
+    else
+      if item.dim[10].value >= 35 and ((item.gauge > 0.8 and item.gauge < 0.9) or (item.gauge >= 0.03 and item.gauge <= 0.034)) then
+        if (item.dim[1].value = item.dim[3].value and (item.dim[8].value = 0 or item.dim[8].value = "Central"))
+         or (item.dim[2].value = item.dim[4].value and (item.dim[9].value = 0 or item.dim[9].value = "Central")) then
+         if item.dim[6+i].value < 2*scale then
+          item.dim[6+i].value = 2*scale
+         end if
+          else
+          item.connector[i+1].locked=false
+          item.connector[i+1].value = "TJ-TDF"
+          item.connector[i+1].locked=true
+        end if
+      end if
+    end if
+end if
+next i
+
+item.option[2].value = "Yes"
+item.option[1].value = "Yes"
+
+item.update()
+
+REM;;-----Calcul de la longueur du blank1---------;;
+
+dim blank = 0
+dim blank2 = 0
+dim blank3 = 0
+
+REM;;-------Si
+
+if (((item.dim[3].value - item.dim[1].value) = item.dim[8].value or item.dim[8].value = 0 or instr(1,item.dim[8].value,"Flat"))
+    and ((item.dim[4].value - item.dim[2].value) = item.dim[9].value and item.dim[9].value = 0 or instr(1,item.dim[9].value,"Flat")))
+    or
+    (((item.dim[4].value - item.dim[2].value) = item.dim[9].value or item.dim[9].value = 0 or instr(1,item.dim[9].value,"Flat"))
+    and ((item.dim[3].value - item.dim[1].value) = item.dim[8].value and item.dim[8].value = 0 or instr(1,item.dim[8].value,"Flat"))) then
+    if item.dim[1].value - item.dim[3].value >= 0 then
+      blank = blank + item.dim[1].value
+    else
+      blank = blank + item.dim[3].value
+    end if
+    if item.dim[2].value - item.dim[4].value >= 0 then
+      blank = blank + item.dim[2].value
+    else
+      blank = blank + item.dim[4].value
+    end if
+REM debug "Blank:" + blank
+end if
+
+REM;;-----Calcul de la longueur du blank2---------;;
+
+if (item.dim[3].value - item.dim[1].value = 0 or item.dim[4].value - item.dim[2].value = 0)
+   and ((item.dim[8].value = 0 or instr(1,item.dim[8].value,"Flat")) and (item.dim[9].value = 0 or instr(1,item.dim[9].value,"Flat"))) then
+    if item.dim[1].value = item.dim[3].value then
+      blank2 = blank2 + item.dim[1].value
+      if item.dim[2].value >= item.dim[4].value then
+        blank2 = blank2 + (2*item.dim[2].value)
+      else
+        blank2 = blank2 + (2*item.dim[4].value)
+      end if
+    else
+      blank2 = blank2 + item.dim[2].value
+      if item.dim[1].value >= item.dim[3].value then
+        blank2 = blank2 + (2*item.dim[1].value)
+      else
+        blank2 = blank2 + (2*item.dim[3].value)
+      end if
+    end if
+REM debug "Blank2:" + blank2
+  REM;;-----Calcul de la longueur du blank3---------;;
+    if item.dim[1].value = item.dim[3].value then
+      blank3 = blank3 + item.dim[1].value
+      if item.dim[2].value >= item.dim[4].value then
+        blank3 = blank3 + (item.dim[2].value)
+      else
+        blank3 = blank3 + (item.dim[4].value)
+      end if
+    else
+      blank3 = blank3 + item.dim[2].value
+      if item.dim[1].value >= item.dim[3].value then
+        blank3 = blank3 + (item.dim[1].value)
+      else
+        blank3 = blank3 + (item.dim[3].value)
+      end if
+    end if
+end if
+REM debug "Blank3:" + blank3
+
+if blank/scale > 56.2 then
+  item.option[2].value = "No"
+end if
+
+if blank2/scale > 56.2 then
+  item.option[1].value = "No"
+end if
+
+if blank3/scale > 56.2 then
+  item.option[2].value = "No"
+end if
+
+end if
+
+
+REM-12--------Use "V-Notch" ET par défaut à 25deg, sauf si TDF à 20deg-------------------REM
+
+ if item.CID = 1 or item.CID = 35 or item.CID = 866 or item.CID = 7 or item.CID = 2 then
+   item.option["Connector Fold Notch #1"].locked=false
+   item.option["Connector Fold Notch #1"].value = "Use Vee Notch"
+   item.option["Connector Fold Notch #2"].locked=false
+   item.option["Connector Fold Notch #2"].value = "Use Vee Notch"
+
+   item.option["Vee Notch Angle #1"].locked=false
+   item.option["Vee Notch Angle #1"].value = 25
+   item.option["Vee Notch Angle #2"].locked=false
+   item.option["Vee Notch Angle #2"].value = 25
+
+   if item.CID = 1 or item.CID = 35 or item.CID = 866 or item.CID = 7 then
+   dim v
+    for v = 1 to 2
+     if item.connector[v] then
+       select item.connector[v].value
+
+       case "TDF"
+        Dim OptionVNANumber = "Vee Notch Angle #" + v + ""
+        item.option[OptionVNANumber].value = "Auto"
+ 
+      end select
+     end if
+
+  next v
+ end if
+end if
+
+
+REM-13---------Coudes à rayon---- Adjust for part 3 et 4---------------------------REM
+
+If (item.CID=17 or item.CID=4 or item.CID=22 or item.CID=23) and item.option[1].value="Radius" and item.dim[7].numvalue/scale > 3 then
+  item.option[2].value = 0.0625*scale
+  item.option[3].value = -0.0625*scale
+end if
+REM--- y a pas l'option pour le CID 399!
+
+
+REM-14---------Coudes à rayon et offsets rectangulaires ---- Seam cut back à "0" et Allow central tierods à "Yes"---------------------------REM
+
+If item.CID=17 or item.CID=399 then
+   item.option["Allow Central Tie Rods"].value = "Yes"
+end if
+If item.CID=330 then
+   item.option["Allow Central Tie Rods"].value = "Yes"
+   item.option["Seam Cut Back"].value = 0
+end if
+ 
+
+REM 15-----------------Carrés à Rond TJ-TDF, 1/4"LAP TACK/SCELLER-SE (ou BE) **Voir section des CONNECTEURS au haut du fichier. ---1/2 Clinch
+
+if item.CID = 8 or item.CID = 29 then
+dim j
+
+for j = 1 to 3
+
+  if item.connector[j] then
+
+  select item.connector[j].value
+
+   case "SE", "SE-BEAD 2""", "SE+BEAD 2""", "SE-BEAD 2''", "SE-BEAD 3""", "SE-BEAD 3''", "SE-BEAD1.5""", "SE-BEAD1.5''", "SE+BEAD3""", "SE+BEAD3''", "Small End", "S-E", "PB", "SE 2""", "SE Bead 3"""
+
+    item.connector[j].locked=false
+          item.connector[j].value = "1/4""LAP Tacké-Scellé SE"
+          item.connector[j].locked=true
+
+   case "BE", "BEAD 2""", "BEAD 2''", "BEAD 3""", "BEAD 3''", "BEAD1.5""", "BEAD1.5''", "B-E", "BE-Dep", "GB", "GB (LAP13)"
+
+    item.connector[j].locked=false
+          item.connector[j].value = "1/4""LAP Tacké-Scellé BE"
+          item.connector[j].locked=true
+   end select
+  end if
+
+next j
+
+  item.seam[1].locked = false
+  item.seam[1].value = "1/2 Clinch"
+  item.seam[1].locked = true
+ 
+  if item.connector[1].value = "TDF" then
+    item.connector[1].locked=false
+    item.connector[1].value = "TJ-TDF"
+    item.connector[1].locked=true
+  end if
+
+end if
+
+REM-16------------Plenums VNotch Angle à 75 deg-, collet 1/2 clinch et C2 à "TAP"--------------------REM
+
+ if item.CID = 382 then
+  item.option["Vee Notch Angle"].value = 75
+  if item.seam[2] then
+  item.seam[2].locked = false
+  item.seam[2].value = "1/2 Clinch"
+  item.seam[2].locked = true
+  end if
+  if item.connector[2] then
+
+  select item.connector[2].value
+
+   case "SE", "SE-BEAD 2""", "SE+BEAD 2""", "SE-BEAD 2''", "SE-BEAD 3""", "SE-BEAD 3''", "SE-BEAD 1.5""", "SE-BEAD 1.5''", "SE+BEAD 3""", "SE+BEAD 3''", "Small End", "S-E", "PB", "TAP", "SE 2""", "SE Bead 3"""
+
+    item.connector[2].locked=false
+          item.connector[2].value = "TAP-SE"
+          item.connector[2].locked=true
+
+   case "BE", "BEAD 2""", "BEAD 2''", "BEAD 3""", "BEAD 3''", "BEAD 1.5""", "BEAD 1.5''", "B-E", "BE-Dep", "GB", "GB (LAP13)"
+
+    item.connector[2].locked=false
+          item.connector[2].value = "TAP-BE"
+          item.connector[2].locked=true
+   end select
+  end if
+ end if
+
+REM-17------------CULOTTE, wrapper en 1 ou 2 mcx--------------REM
+
+if item.CID=37 then
+
+  item.option["2 Part Wrapper"].value = "Yes"
+  item.option["Junction Notch"].value = "Use Vee Notch"
+  item.option["Vee Notch Angle"].value = 30
+      item.seam[2].locked=false
+      item.seam[2].value = "1""Clinch"
+      item.seam[2].locked=true
+
+  if (item.dim[2].value = item.dim[6].numvalue) and (item.dim[6].numvalue = item.dim[4].numvalue) then
+
+    if item.dim[7].numvalue = 0 and item.dim[8].numvalue = 0 then
+
+      item.option["2 Part Wrapper"].value = "No"
+
+    end if
+
+  end if
+end if
+
+
+REM-18-----------Change Service type selon "Library"---------------------REM
+
+  if item.library="Rectangular" or item.library="Rectangular/Round" then
+   item.servicetype="Rectangular Duct"
+  end if
+
+  if item.library="Round" then
+   item.servicetype="Round Duct"
+  end if
+
+  if item.library="Flat Oval" then
+   item.servicetype="Round Duct"
+  end if
+
+  if item.CID=555 or item.CID=166 then
+   item.servicetype="Duct Accessory"
+  end if
+
+ 
+
+REM 19------------Conduits Spiral à Spec = "SPIRAL 10"WG"----------------REM
+REM-19--Les entrées du spec de base dans le matériel "galvanized" doivent être recopiées dans le matérial du client pour que cà fonctionne.
+
+if item.CID=61 then
+  item.option["Diameter Reduction"].value=0
+  item.option["Single Segments"].locked=false
+  item.option["Seam Position"].locked=false
+  item.option["Marker Type"].locked=false
+  item.option["Single Segments"].value="Yes"
+  item.option["Seam Position"].value=0
+  item.option["Marker Type"].value="None"
+end if
+
+Dim ok_Spiral=0
+
+for j = 2 to 3
+  if item.connector[j] then
+   If (instr(1,item.description,"Spira")
+    or instr(1,item.connector[j].value,"SE") or instr(1,item.connector[j].value,"BE")
+    or instr(1,item.connector[j].value,"PB") or instr(1,item.connector[j].value,"GB")) and (item.CID <> 382 and item.CID <> 8 and item.CID <> 29) then
+     ok_Spiral = 1
+   end if
+ end if
+next j
+
+if ok_Spiral = 1 then
+ for j = 1 to 5
+
+  if item.connector[j] then
+  select item.connector[j].value
+
+   case "SE", "SE-BEAD 2""", "SE+BEAD 2""", "SE-BEAD 2''", "SE-BEAD 3""", "SE-BEAD 3''", "SE-BEAD1.5""", "SE-BEAD1.5''", "SE+BEAD3""", "SE+BEAD3''", "Small End", "S-E", "PB", "SE 2""", "SE Bead 3"""
+
+    item.connector[j].locked=false
+          item.connector[j].value = "SE-BEAD 3"""
+          item.connector[j].locked=true
+
+   case "BE", "BEAD 2""", "BEAD 2''", "BEAD 3""", "BEAD 3''", "BEAD1.5""", "BEAD1.5''", "B-E", "BE-Dep", "GB", "GB (LAP13)"
+
+    item.connector[j].locked=false
+          item.connector[j].value = "BEAD 3"""
+          item.connector[j].locked=true
+   end select
+  end if
+
+ next j
+
+REM-----------------
+REM-r4
+ 
+     if item.CID=61 then
+      dim diam_ajust = 0
+      if item.dim[1].value < (13*scale) then
+       diam_ajust = (0.125*scale)
+      end if
+      if item.dim[1].value > ((12.99*scale) and item.dim[1].value < (30*scale)) then
+       diam_ajust = (0.2*scale)
+      end if
+      if item.dim[1].value > (29.99*scale) then
+       diam_ajust = (0.22*scale)
+      end if
+         item.option["Diameter type"].value = "Nominal"
+
+rem SE/SE
+      if item.pallet<>"Skip" then
+       if (item.connector[2].value = "SE-BEAD 3""" and item.connector[3].value = "SE-BEAD 3""") then
+         item.dim[1].value = (item.dim[1].value - diam_ajust)
+         item.pallet = "Skip"
+         item.option["Diameter reduction"].value = 0
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option["Diameter type"].value = "Outside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option["Diameter type"].value = "Outside"
+          end if
+         end if
+       end if
+      end if
+
+rem BE/SE
+      if (item.connector[2].value = "BEAD 3""" and item.connector[3].value = "SE-BEAD 3""") or (item.connector[2].value = "SE-BEAD 3""" and item.connector[3].value = "BEAD 3""") then
+         item.option["Diameter reduction"].value = diam_ajust
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option["Diameter type"].value = "Inside"
+           item.option["Diameter reduction"].value = (diam_ajust + (2*item.gauge))
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option["Diameter type"].value = "Inside"
+           item.option["Diameter reduction"].value = (diam_ajust + (2*item.gauge))
+          end if
+         end if
+      end if
+
+rem BE/BE
+      if (item.connector[2].value = "BEAD 3""" and item.connector[3].value = "BEAD 3""") then
+         item.option["Diameter reduction"].value = 0
+         item.option["Diameter type"].value = "Inside"
+      end if
+
+
+rem gaijez IMPERIAL 16 = 0.0635 | 18 = 0.0516 | 20 = 0.0396 | 22= 0.0336 | 24 = 0.0276 | 26 = 0.0217 |
+rem gaijez METRIQUE 16 = 1.613  | 18 = 1.31   | 20 = 1.005  | 22= 0.853  | 24 = 0.711  | 26 = 0.551  |
+
+
+      item.connector[1].locked=false
+      item.connector[2].locked=true
+      item.connector[3].locked=true
+      item.seam[1].locked=false
+ 
+    end if
+REM-----------------
+     if item.CID=162 or item.CID=51 or item.CID=71 then
+
+      dim diam_ajust1 = 0
+      dim diam_ajust2 = 0
+      if item.dim[1].value < (13*scale) then
+       diam_ajust1 = (0.125*scale)
+      end if
+      if item.dim[1].value > ((12.99*scale) and item.dim[1].value < (30*scale)) then
+       diam_ajust1 = (0.2*scale)
+      end if
+      if item.dim[1].value > (29.99*scale) then
+       diam_ajust1 = (0.22*scale)
+      end if
+
+      if item.dim[2].value < (13*scale) then
+       diam_ajust2 = (0.125*scale)
+      end if
+      if item.dim[2].value > ((12.99*scale) and item.dim[1].value < (30*scale)) then
+       diam_ajust2 = (0.2*scale)
+      end if
+      if item.dim[2].value > (29.99*scale) then
+       diam_ajust2 = (0.22*scale)
+      end if
+         item.option[1].value = "Nominal"
+         item.option[2].value = "Nominal"
+rem r4b
+     if item.pallet<>"Skip" then
+       if item.connector[1].value = "SE-BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[1].value = "Outside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[1].value = "Outside"
+          end if
+         end if
+         item.dim[1].value = (item.dim[1].value - diam_ajust1)
+       end if
+      end if
+      if item.pallet<>"Skip" then
+       if item.connector[2].value = "SE-BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[2].value = "Outside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[2].value = "Outside"
+          end if
+         end if
+         item.dim[2].value = (item.dim[2].value - diam_ajust2)
+       end if
+      end if
+     if item.pallet<>"Skip" then
+       if item.connector[1].value = "BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[1].value = "Inside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[1].value = "Inside"
+          end if
+         end if
+       end if
+      end if
+      if item.pallet<>"Skip" then
+       if item.connector[2].value = "BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[2].value = "Inside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[2].value = "Inside"
+          end if
+         end if
+       end if
+      end if
+      item.pallet = "Skip"
+
+       if item.CID=162 then
+         if item.dim[4].value="Central" then
+          dim absDiff = (item.dim[1].value - item.dim[2].value) / 2
+          item.dim[4].value=absDiff
+         end if
+         if item.dim[5].value="Central" then
+          dim absDiff = (item.dim[1].value - item.dim[2].value) / 2
+          item.dim[5].value=absDiff
+         end if
+       end if
+
+      item.connector[1].locked=false
+      item.connector[2].locked=false
+      item.seam[1].locked=false
+      item.seam[2].locked=false
+     end if
+
+REM-----------------
+rem gaijez IMPERIAL 16 = 0.0635 | 18 = 0.0516 | 20 = 0.0396 | 22= 0.0336 | 24 = 0.0276 | 26 = 0.0217 |
+rem gaijez METRIQUE 16 = 1.613  | 18 = 1.31   | 20 = 1.005  | 22= 0.853  | 24 = 0.711  | 26 = 0.551  |
+
+     if item.CID=380 then
+
+      dim diam_ajust2 = 0
+      dim diam_ajust3 = 0
+      if item.dim[1].value < (13*scale) then
+       diam_ajust2 = (0.125*scale)
+      end if
+      if item.dim[1].value > ((12.99*scale) and item.dim[1].value < (30*scale)) then
+       diam_ajust2 = (0.2*scale)
+      end if
+      if item.dim[1].value > (29.99*scale) then
+       diam_ajust2 = (0.22*scale)
+      end if
+
+      if item.dim[2].value < (13*scale) then
+       diam_ajust3 = (0.125*scale)
+      end if
+      if item.dim[2].value > ((12.99*scale) and item.dim[1].value < (30*scale)) then
+       diam_ajust3 = (0.2*scale)
+      end if
+      if item.dim[2].value > (29.99*scale) then
+       diam_ajust3 = (0.22*scale)
+      end if
+
+         item.option[2].value = "Nominal"
+         item.option[3].value = "Nominal"
+
+rem r4b
+
+     if item.pallet<>"Skip" then
+       if item.connector[2].value = "SE-BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[2].value = "Outside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[2].value = "Outside"
+          end if
+         end if
+         item.dim[1].value = (item.dim[1].value - diam_ajust2)
+       end if
+      end if
+      if item.pallet<>"Skip" then
+       if item.connector[3].value = "SE-BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[3].value = "Outside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[3].value = "Outside"
+          end if
+         end if
+         item.dim[2].value = (item.dim[2].value - diam_ajust3)
+       end if
+      end if
+
+     if item.pallet<>"Skip" then
+       if item.connector[2].value = "BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[2].value = "Inside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[2].value = "Inside"
+          end if
+         end if
+       end if
+      end if
+      if item.pallet<>"Skip" then
+       if item.connector[3].value = "BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[3].value = "Inside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[3].value = "Inside"
+          end if
+         end if
+       end if
+      end if
+
+rem r4b
+
+      item.pallet = "Skip"
+      item.connector[1].locked=false
+      item.connector[2].locked=true
+      item.connector[3].locked=true
+      item.seam[1].locked=false
+     end if
+
+REM-----------------
+     if item.CID=933 then
+      dim j
+      for j = 1 to 5
+rem 4b
+rem on ne peut pas changer les diameter type à "outside" ou "inside"
+rem alors, j'ai augmenté le diam_ajust de 0.14 a`0.2
+
+        if item.connector[j] then
+         if j=1 then
+         if item.pallet<>"Skip" then
+          if item.connector[j].value = "SE-BEAD 3""" then
+           item.dim[1].value = (item.dim[1].value - (0.2*scale))
+          end if
+         end if
+         end if
+         if j=2 then
+         if item.pallet<>"Skip" then
+          if item.connector[j].value = "SE-BEAD 3""" then
+           item.dim[2].value = (item.dim[2].value - (0.2*scale))
+          end if
+         end if
+         end if
+         if j=3 then
+         if item.pallet<>"Skip" then
+          if item.connector[j].value = "SE-BEAD 3""" then
+           item.dim[8].value = (item.dim[8].value - (0.2*scale))
+          end if
+         end if
+         end if
+         if j=4 then
+         if item.pallet<>"Skip" then
+          if item.connector[j].value = "SE-BEAD 3""" then
+           item.dim[14].value = (item.dim[14].value - (0.2*scale))
+          end if
+         end if
+         end if
+         if j=5 then
+         if item.pallet<>"Skip" then
+          if item.connector[j].value = "SE-BEAD 3""" then
+           item.dim[20].value = (item.dim[20].value - (0.2*scale))
+          end if
+         end if
+         end if
+          item.connector[j].locked=true
+        end if
+      next j
+      item.pallet = "Skip"
+
+      dim s
+      for s = 1 to 5
+        if item.seam[s] then
+         item.seam[s].locked=false
+        end if
+      next s
+     end if
+
+REM-----------------
+     if item.CID=47 then
+
+
+      dim diam_ajust1 = 0
+      dim diam_ajust5 = 0
+      if item.dim[1].value < (13*scale) then
+       diam_ajust1 = (0.125*scale)
+      end if
+      if item.dim[1].value > ((12.99*scale) and item.dim[1].value < (30*scale)) then
+       diam_ajust1 = (0.2*scale)
+      end if
+      if item.dim[1].value > (29.99*scale) then
+       diam_ajust1 = (0.22*scale)
+      end if
+      if item.dim[5].value < (13*scale) then
+       diam_ajust5 = (0.125*scale)
+      end if
+      if item.dim[5].value > ((12.99*scale) and item.dim[1].value < (30*scale)) then
+       diam_ajust5 = (0.2*scale)
+      end if
+      if item.dim[5].value > (29.99*scale) then
+       diam_ajust5 = (0.22*scale)
+      end if
+
+         item.option[6].value = "Nominal"
+         item.option[7].value = "Nominal"
+
+      dim s
+      for s = 1 to 4
+        if item.seam[s] then
+         item.seam[s].locked=false
+        end if
+      next s
+
+
+      if item.pallet<>"Skip" then
+       if (item.connector[1].value = "SE-BEAD 3""" and item.connector[2].value = "SE-BEAD 3""") then
+           item.dim[1].value = (item.dim[1].value - diam_ajust1)
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[6].value = "Outside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[6].value = "Outside"
+          end if
+         end if
+       end if
+      end if
+      if item.pallet<>"Skip" then
+       if item.connector[3].value = "SE-BEAD 3""" then
+           item.dim[5].value = (item.dim[5].value - diam_ajust5)
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[7].value = "Outside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[7].value = "Outside"
+          end if
+         end if
+       end if
+      end if
+
+      if item.pallet<>"Skip" then
+       if (item.connector[1].value = "BEAD 3""" and item.connector[2].value = "BEAD 3""") then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[6].value = "Inside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[6].value = "Inside"
+          end if
+         end if
+       end if
+      end if
+      if item.pallet<>"Skip" then
+       if item.connector[3].value = "BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[7].value = "Inside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[7].value = "Inside"
+          end if
+         end if
+       end if
+      end if
+
+
+
+      item.pallet = "Skip"
+      item.connector[1].locked=true
+      item.connector[2].locked=true
+      item.connector[3].locked=true
+     end if
+
+REM-----------------
+     if item.CID=875 or item.CID=751 then
+
+      dim diam_ajust2 = 0
+
+      if item.dim[2].value < (13*scale) then
+       diam_ajust2 = (0.125*scale)
+      end if
+      if item.dim[2].value > ((12.99*scale) and item.dim[1].value < (30*scale)) then
+       diam_ajust2 = (0.2*scale)
+      end if
+      if item.dim[2].value > (29.99*scale) then
+       diam_ajust2 = (0.22*scale)
+      end if
+
+      item.option[4].value = "Nominal"
+rem r4b
+      if item.pallet<>"Skip" then
+       if item.connector[3].value = "SE-BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[4].value = "Outside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[4].value = "Outside"
+          end if
+         end if
+           item.dim[2].value = (item.dim[2].value - diam_ajust2)
+       end if
+       if item.connector[3].value = "BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[4].value = "Inside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[4].value = "Inside"
+          end if
+         end if
+       end if
+      end if
+
+      item.pallet = "Skip"
+      item.connector[1].locked=false
+      item.connector[2].locked=false
+      item.connector[3].locked=false
+      item.seam[1].locked=false
+      item.seam[2].locked=false
+     end if
+
+REM-----------------
+     if item.CID=821 then
+      item.option[1].value = "Nominal"
+      item.option[2].value = "Nominal"
+      item.option[3].value = "Nominal"
+rem r4b
+      dim diam_ajust1 = 0
+      dim diam_ajust2 = 0
+      dim diam_ajust3 = 0
+
+      if item.dim[1].value < (13*scale) then
+       diam_ajust1 = (0.125*scale)
+      end if
+      if item.dim[1].value > ((12.99*scale) and item.dim[1].value < (30*scale)) then
+       diam_ajust1 = (0.2*scale)
+      end if
+      if item.dim[1].value > (29.99*scale) then
+       diam_ajust1 = (0.22*scale)
+      end if
+
+      if item.dim[2].value < (13*scale) then
+       diam_ajust2 = (0.125*scale)
+      end if
+      if item.dim[2].value > ((12.99*scale) and item.dim[1].value < (30*scale)) then
+       diam_ajust2 = (0.2*scale)
+      end if
+      if item.dim[2].value > (29.99*scale) then
+       diam_ajust2 = (0.22*scale)
+      end if
+
+      if item.dim[3].value < (13*scale) then
+       diam_ajust3 = (0.125*scale)
+      end if
+      if item.dim[3].value > ((12.99*scale) and item.dim[1].value < (30*scale)) then
+       diam_ajust3 = (0.2*scale)
+      end if
+      if item.dim[3].value > (29.99*scale) then
+       diam_ajust3 = (0.22*scale)
+      end if
+
+      if item.pallet<>"Skip" then
+       if item.connector[1].value = "SE-BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[1].value = "Outside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[1].value = "Outside"
+          end if
+         end if
+           item.dim[1].value = (item.dim[1].value - diam_ajust1)
+       end if
+       if item.connector[1].value = "BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[1].value = "Inside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[1].value = "Inside"
+          end if
+         end if
+       end if
+      end if
+
+      if item.pallet<>"Skip" then
+       if item.connector[2].value = "SE-BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[2].value = "Outside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[2].value = "Outside"
+          end if
+         end if
+           item.dim[2].value = (item.dim[2].value - diam_ajust2)
+       end if
+       if item.connector[2].value = "BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[2].value = "Inside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[2].value = "Inside"
+          end if
+         end if
+       end if
+      end if
+
+      if item.pallet<>"Skip" then
+       if item.connector[3].value = "SE-BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[3].value = "Outside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[3].value = "Outside"
+          end if
+         end if
+           item.dim[3].value = (item.dim[3].value - diam_ajust3)
+       end if
+       if item.connector[3].value = "BEAD 3""" then
+         if scale <> 1 then
+          if item.gauge > 0.8 then
+           item.option[3].value = "Inside"
+          end if
+         else
+          if item.gauge > 0.03 then
+           item.option[3].value = "Inside"
+          end if
+         end if
+       end if
+      end if
+
+       item.pallet = "Skip"
+       item.connector[1].locked=true
+       item.connector[2].locked=true
+       item.connector[3].locked=true
+       item.connector[4].locked=false
+       item.connector[5].locked=false
+       item.connector[6].locked=false
+       item.seam[1].locked=false
+     end if
+ 
+REM-20----------------Toutes les longueurs Spirales à BE----------REM
+
+     if item.CID=40 then
+      item.connector[1].locked=false
+      item.connector[2].locked=false
+     end if
+
+REM-21----------------Carrés à Rond à Spec="Spiral 10""WG"---------REM
+     if item.CID <> 382 or item.CID <> 8 or item.CID <> 29 then
+rem Rev 4c
+        item.gaugelock=false
+        item.specification="SPIRAL 10""WG"
+        if instr(1,item.material,"Galv") then
+          item.material="Galvanized"
+        end if
+        if instr(1,item.material,"Alu") then
+          item.material="Aluminum"
+        end if
+rem Rev 4c
+        item.update()
+        item.gaugelock=true
+     end if
+ end if
+
+REM============================================================
+REM * DESCRIPTION: Script to change the number of parts on a straight based on periphery
+REM *
+REM *----------------------------------------------------------------------------------------------------------------------
+REM *  CREATED BY: Garrett Tice-David Ronson
+REM *           DIRECT:
+REM *             CELL:
+REM *            EMAIL: support@asti.com
+REM *             DATE: 10/25/17
+REM * ----------------------------------------------------------------------------------------------------------------------
+REM *   REVISED BY: jimbon
+REM *             DATE: 10-31-2017
+REM ============================================================
+
+Select item.cid
+case 866
+
+Dim varWidth = item.dim[1].value
+Dim varDepth = item.dim[2].value
+Dim varPeriphery = (varWidth*2) + (varDepth*2)
+
+If varPeriphery < "122.1" then
+    item.option["Override"].value = "1 Part Straight"
+end if
+
+if varPeriphery > "122.1" and varPeriphery < "244.1" then
+    if varWidth > "111.75" or varDepth > "111.75" then
+      item.option["Override"].value = "4xI,M-F"
+    else item.option["Override"].value = "2xL"
+endif
+end if
+
+if varPeriphery > "244.1" then
+ITEM.OPTION["Override"].value = "4xI,M-F"
+end if
+
+if varWidth < "4" or varDepth < "4" then
+     ITEM.OPTION["Override"].value = "2xL"
+end if
+
+end select
+item.update()
+
+REM-22----------------Carre a rond price---------REM
+if item.description = "Car-Rond Asym" then
+       item.pricelist = "APS Liste de prix brute: Transitions carré a rond"
+                End If
+if item.cid = 8 then
+       item.pricelist = "APS Liste de prix brute: Transitions carré a rond"
+                End If
+if item.description = "Square To Round" then
+       item.pricelist = "APS Liste de prix brute: Transitions carré a rond"
+                End If
+
+REM-23----------------ASSIGN PRICE LIST Conn Flex----------REM
+if item.description = "Conn Flex 3po" and
+    item.connector[1].value= "TDF"  then
+       item.pricelist = "APS Liste de prix brute: Joint Flex TDF"
+                End If
+if item.description = "Conn Flex 3po" and
+    item.connector[1].value= "SB"  then
+       item.pricelist = "APS Liste de prix brute: Joint Flex TDF"
+                End If
+if item.description = "Conn Flex 3po" and
+    item.connector[1].value= "SBS"  then
+       item.pricelist = "APS Liste de prix brute: Joint Flex TDF"
+                End If
+if item.description = "Conn Flex 6po" then
+       item.pricelist = "APS Liste de prix brute: Joint Flexible 3-6-3"
+                End If
+if item.description= "Duct Canvas 3-6-3" then
+  item.pricelist = "APS Liste de prix brute: Joint Flexible 3-6-3"
+end if
+
+If item.cid=555 then
+  item.pricelist = "APS Liste de prix brute: Joint Flexible 3-3-3-rond"
+  item.fabtable = "Canvas-rond"
+end if
+
+REM-24----------------Carre a rond connectors adjustments---------REM
+Select ITEM.CID
+
+  case 8
+
+  if item.Option["Diameter Type"].Value = "Outside" Then
+    ITEM.Connector[2].Value = "1/4""LAP TACK/SCELLER"
+    ITEM.Connector[2].Locked = True
+  endif
+
+EndSelect
+
+
+REM-25----------------CID 866 set notch 1 and 2 to use vee notch---------REM
+if item.cid= 866 then
+   item.option["Connector Fold Notch #1"].locked=false
+   item.option["Connector Fold Notch #1"].value = "Use Vee Notch"
+   item.option["Connector Fold Notch #2"].locked=false
+   item.option["Connector Fold Notch #2"].value = "Use Vee Notch"
+end if
+
+REM-26----------------CID 6 BRANCHE 45DEG---------REM
+if item.cid=875 and item.dim[4].value = "45" then
+  item.pricelist = "APS Liste de prix brute: Branche 45deg"
+end if
+
+
+REM-27----------------CID 921 CLE MAJ---------REM
+if item.cid=921 then
+  item.pricelist="APS Liste de prix brute: Volet rond"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Machine Cut"
+  item.boughtout = false
+  item.fabtable = "Round Dampers"
+ 
+end if
+
+REM-28----------------CID 522 Coupling SE spirale---------REM
+if item.cid=522 then
+  item.pricelist="APS Liste de prix brute: Manchons"
+  item.servicetype="Duct Accessory"
+  item.cuttype="Equipment"
+  item.boughtout = false
+  item.fabtable = "Round Coupling Std."
+end if
+
+REM 40--------------Assign Fab table and price list to Coudes Rond CID 97, 61---------------------REM
+
+Select ITEM.CID
+  case 61
+if item.cid= 61 then
+  item.pricelist="APS Liste de prix brute: Coudes standard"
+end if
+End select
+item.update()
+
+
+REM-------Fin--------REM
+REM-------Fin--------REM
+REM-------Fin--------REM
+REM-------Fin--------REM
+REM-------Fin--------REM
+
+rem gaijez IMPERIAL 16 = 0.0635 | 18 = 0.0516 | 20 = 0.0396 | 22= 0.0336 | 24 = 0.0276 | 26 = 0.0217 |
+rem gaijez METRIQUE 16 = 1.613  | 18 = 1.31   | 20 = 1.005  | 22= 0.853  | 24 = 0.711  | 26 = 0.551  |
+
+
+item.update()
